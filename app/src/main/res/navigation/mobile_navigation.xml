@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/mob_nav_passwords">
+
+
+    <fragment
+        android:id="@+id/mob_nav_passwords"
+        android:name="com.example.cryptguard.ui.passwords.PasswordsFragment"
+        android:label="@string/menu_passwords"
+        tools:layout="@layout/fragment_passwords" />
+
+    <fragment
+        android:id="@+id/mob_nav_database"
+        android:name="com.example.cryptguard.ui.database.DatabaseFragment"
+        android:label="@string/menu_database"
+        tools:layout="@layout/fragment_database" />
+
+    <fragment
+        android:id="@+id/mob_nav_encrypter"
+        android:name="com.example.cryptguard.ui.encrypter.EncrypterFragment"
+        android:label="@string/menu_encrypter"
+        tools:layout="@layout/fragment_encrypter" />
+
+    <fragment
+        android:id="@+id/mob_nav_generator"
+        android:name="com.example.cryptguard.ui.generator.GeneratorFragment"
+        android:label="@string/menu_generator"
+        tools:layout="@layout/fragment_generator" />
+
+</navigation>

@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">CryptGuard</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_database">Database</string>
+    <string name="menu_passwords">Passwords</string>
+    <string name="menu_encrypter">Encrypter</string>
+    <string name="menu_generator">Password generator</string>
+    <string name="add_new_password_text_floating">Add new password</string>
+</resources>
