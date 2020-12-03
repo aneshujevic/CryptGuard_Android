@@ -9,4 +9,6 @@
     <string name="menu_encrypter">Encrypter</string>
     <string name="menu_generator">Password generator</string>
     <string name="add_new_password_text_floating">Add new password</string>
+    <string name="show_password_button_description">Show password</string>
+    <string name="show_password_button_text">show</string>
 </resources>
