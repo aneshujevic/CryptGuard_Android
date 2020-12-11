@@ -11,4 +11,8 @@
     <string name="add_new_password_text_floating">Add new password</string>
     <string name="show_password_button_description">Show password</string>
     <string name="show_password_button_text">show</string>
+    <string name="generate_a_password_button_text">Generate</string>
+    <string name="generated_password_placeholder_text">Generated password</string>
+    <string name="copy_to_clipboard_description">Copy to clipboard</string>
+    <string name="recommended_password_length">32</string>
 </resources>
