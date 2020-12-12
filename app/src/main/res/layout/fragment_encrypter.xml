@@ -6,17 +6,68 @@
     android:layout_height="match_parent"
     tools:context=".ui.encrypter.EncrypterFragment">
 
-    <TextView
-        android:id="@+id/text_encrypter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="134dp"
+        android:layout_height="134dp"
+        android:layout_marginTop="5dp"
+        android:src="@drawable/ic_lock"
+        android:text="@string/encrypter_header_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/encrypter_header_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/encrypter_header_text"
+        android:textAlignment="center"
+        android:textColor="@color/charleston_green"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <EditText
+        android:id="@+id/password_encrypter_edit_text"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+        android:inputType="text"
+        android:hint="@string/password_encrypter_text"
+        app:layout_constraintBottom_toTopOf="@+id/encrypt_file_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/encrypter_header_text_view" />
+
+    <Button
+        android:id="@+id/encrypt_file_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="192dp"
+        android:backgroundTint="@color/charleston_green_bright"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/choose_a_file_encrypter_btn"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/encrypter_header_text_view" />
+
+    <Button
+        android:id="@+id/decrypt_file_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="0sp"
+        android:layout_marginTop="192dp"
+        android:backgroundTint="@color/charleston_green_bright"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/choose_a_file_decrypter_btn"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/encrypter_header_text_view" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

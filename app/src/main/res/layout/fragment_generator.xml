@@ -8,10 +8,10 @@
     tools:context=".ui.generator.GeneratorFragment">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/dice_logo_img_view"
         android:layout_width="134dp"
         android:layout_height="134dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="5dp"
         android:gravity="center_vertical"
         android:src="@drawable/ic_dice"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,7 +31,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/dice_logo_img_view" />
 
     <EditText
         android:id="@+id/character_length_edit_text"
