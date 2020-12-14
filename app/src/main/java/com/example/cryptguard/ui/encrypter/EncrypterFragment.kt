@@ -1,25 +1,19 @@
 package com.example.cryptguard.ui.encrypter
 
 import android.app.Activity.RESULT_OK
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
 import kotlinx.android.synthetic.main.fragment_encrypter.view.*
-import java.io.File
-import java.net.Authenticator
 
 
 class EncrypterFragment : Fragment() {
