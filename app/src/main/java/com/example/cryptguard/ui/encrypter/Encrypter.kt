@@ -18,7 +18,7 @@ object Encrypter {
         sr.nextBytes(salt)
 
         // create the key for aes
-        val keySpec = PBEKeySpec(password.toCharArray(), salt, 1000, 128 * 8)
+        val keySpec = PBEKeySpec(password.toCharArray(), salt, 1000, 32 * 8)
         val key = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512").generateSecret(keySpec)
 
         // create the cipher and initialise it with key
