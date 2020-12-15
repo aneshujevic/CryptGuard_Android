@@ -40,8 +40,7 @@ class GeneratorFragment : Fragment() {
             val password = root.password_edit_text.text
 
             if (password.toString().isEmpty()) {
-                Toast.makeText(root.context, "Please generate a password before copying.", Toast.LENGTH_LONG)
-                        .show()
+                root.password_edit_text.error = "Please generate a password before copying."
                 return@setOnClickListener
             }
 
@@ -57,15 +56,13 @@ class GeneratorFragment : Fragment() {
             val lengthText = charLenEditable.toString()
 
             if (lengthText.isEmpty()){
-                Toast.makeText(root.context, "Please enter the value ranging from 8 up to 128 [included].", Toast.LENGTH_LONG)
-                        .show()
+                root.character_length_edit_text.error = "Please enter the value ranging from 8 up to 128 [included]."
                 return@setOnClickListener
             }
 
             val length = parseInt(lengthText)
             if (length < 8 || length > 128) {
-                Toast.makeText(root.context, "Please enter the value ranging from 8 up to 128 [included].", Toast.LENGTH_LONG)
-                        .show()
+                root.character_length_edit_text.error = "Please enter the value ranging from 8 up to 128 [included]."
                 return@setOnClickListener
             }
 

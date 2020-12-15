@@ -115,7 +115,7 @@ class EncrypterFragment : Fragment() {
     private fun passwordEditTextValidate(): Boolean {
         val passwordText = this.password_encrypter_edit_text.text
         if (passwordText.trim().isEmpty() || passwordText.length < 8) {
-            this.password_encrypter_edit_text.setError("Password length has to be more than 8 characters.")
+            this.password_encrypter_edit_text.error = "Password length has to be more than 8 characters."
             return false
         }
         return true
