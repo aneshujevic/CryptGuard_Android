@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
 import kotlinx.android.synthetic.main.fragment_encrypter.*
 import kotlinx.android.synthetic.main.fragment_encrypter.view.*
+import javax.crypto.AEADBadTagException
 
 
 class EncrypterFragment : Fragment() {
@@ -31,7 +32,7 @@ class EncrypterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         encrypterViewModel =
-                ViewModelProvider(this).get(EncrypterViewModel::class.java)
+            ViewModelProvider(this).get(EncrypterViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_encrypter, container, false)
 
         root.encrypt_file_button.setOnClickListener {
@@ -39,8 +40,8 @@ class EncrypterFragment : Fragment() {
                 return@setOnClickListener
 
             val intent = Intent()
-                    .setType("*/*")
-                    .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT)
 
             startActivityForResult(Intent.createChooser(intent, "Select a file"), 1)
         }
@@ -51,9 +52,9 @@ class EncrypterFragment : Fragment() {
 
             val intent = Intent()
                 .setType("*/*")
-                .setAction(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                .setAction(Intent.ACTION_GET_CONTENT)
 
-            startActivityForResult(Intent.createChooser(intent, "Select a directory to save"), 2)
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), 2)
         }
 
         return root
@@ -63,23 +64,21 @@ class EncrypterFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // TODO: implement encrypting/decrypting and creating file
         if (requestCode == 1 && resultCode == RESULT_OK) {
             data?.data?.let {
                 var encryptedBase64: String = ""
-                val line = context?.contentResolver?.openInputStream(it)?.buffered().use { fileStream ->
-                    if (fileStream != null) {
-                        encryptedBase64 = Encrypter.encryptAndGetBase64(fileStream, this.password_encrypter_edit_text.text.toString())
+                val line = requireContext().contentResolver?.openInputStream(it)?.buffered()
+                    .use { fileStream ->
+                        if (fileStream != null) {
+                            encryptedBase64 = Encrypter.encryptAndGetBase64(
+                                fileStream,
+                                this.password_encrypter_edit_text.text.toString()
+                            )
+                        }
                     }
-                }
-
-                if (encryptedBase64 == "") {
-                    Toast.makeText(context, "Failed encrypting a selected file.", Toast.LENGTH_LONG).show()
-                    return
-                }
 
                 // creates values of a to be file
-                val resolver = context?.contentResolver
+                val resolver = requireContext().contentResolver
                 val contentValues = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, getFileName(it) + ".cgfe")
                 }
@@ -91,40 +90,83 @@ class EncrypterFragment : Fragment() {
                         it?.write(encryptedBase64)
                     }
                 }
+
+                this.password_encrypter_edit_text.setText("")
+                Toast.makeText(context, "Successfully encrypted the file!", Toast.LENGTH_LONG)
+                    .show()
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) {
             data?.data?.let {
-                // reads a file
-                val line = context?.contentResolver?.openInputStream(it)?.bufferedReader().use { it!!.readText() }
+                var plainText: String = ""
+                val line = requireContext().contentResolver?.openInputStream(it)?.buffered()
+                    .use { fileStream ->
+                        if (fileStream != null) {
+                            try {
+                                plainText = Encrypter.decrypt(
+                                    fileStream,
+                                    this.password_encrypter_edit_text.text.toString()
+                                )
+                            } catch (ex: AEADBadTagException) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Wrong password, please try again.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                return
+                            }
+                        }
+                    }
 
-                // creates a file
-                val resolver = context?.contentResolver
+                // creates values of a to be file
+                val resolver = requireContext().contentResolver
                 val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, "test.txt")
+                    put(
+                        MediaStore.MediaColumns.DISPLAY_NAME,
+                        getFileName(it)?.removeSuffix(".cgfe")
+                    )
                 }
 
+                // creates the file and writes the data into it
                 val uri = resolver?.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-
-                resolver!!.openOutputStream(uri!!).use {
-                    it?.write("hello".toByteArray())
+                if (uri != null) {
+                    resolver.openOutputStream(uri)?.writer().use {
+                        it?.write(plainText)
+                    }
                 }
+
+                this.password_encrypter_edit_text.setText("")
+                Toast.makeText(context, "Successfully decrypted the file!", Toast.LENGTH_LONG)
+                    .show()
             }
         }
     }
 
     private fun passwordEditTextValidate(): Boolean {
-        val passwordText = this.password_encrypter_edit_text.text
-        if (passwordText.trim().isEmpty() || passwordText.length < 8) {
-            this.password_encrypter_edit_text.error = "Password length has to be more than 8 characters."
+        val passwordText = this.password_encrypter_edit_text.text.trim()
+        val passwordStrengthRegex =
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~\$^+=<>]).{8,}\$".toRegex()
+
+        if (passwordText.isEmpty() || passwordText.length < 8) {
+            this.password_encrypter_edit_text.error =
+                "Password length has to be more than 8 characters."
             return false
         }
+
+        if (!passwordText.contains(passwordStrengthRegex)) {
+            this.password_encrypter_edit_text.error =
+                "Password should contain lowercase letters, uppercase letters, number and punctuation mark."
+            return false
+        }
+
+
         return true
     }
 
     private fun getFileName(uri: Uri): String? {
         var result: String? = null
         if (uri.scheme.equals("content")) {
-            val cursor: Cursor? = context?.contentResolver?.query(uri, null, null, null, null)
+            val cursor: Cursor? =
+                requireContext().contentResolver?.query(uri, null, null, null, null)
 
             cursor.use {
                 if (it != null && it.moveToFirst()) {
