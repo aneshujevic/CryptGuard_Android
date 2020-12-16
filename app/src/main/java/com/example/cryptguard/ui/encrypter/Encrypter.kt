@@ -10,7 +10,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 
 object Encrypter {
-    private const val ITERATION_COUNT = 10000
+    private const val ITERATION_COUNT = 500000
     private const val AES_KEY_LEN = 256
 
     // Encrypt the data from stream, encode it to base64 and append salt and iv to it (base64 too)
