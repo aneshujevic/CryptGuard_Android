@@ -19,4 +19,11 @@
     <string name="encrypter_header_text">Choose a file to be encrypted/decrypted and enter the passphrase:</string>
     <string name="choose_a_file_decrypter_btn">Decrypt file</string>
     <string name="password_encrypter_text">Enter your AES-256 password</string>
+    <string name="password_detail_site_name">Site name</string>
+    <string name="password_detail_username">Username</string>
+    <string name="password_detail_e_mail">E-mail</string>
+    <string name="password_detail_additional_data">Additional data</string>
+    <string name="password_detail_password">Password</string>
+    <string name="password_detail_save">SAVE</string>
+    <string name="password_detail_delete">DELETE</string>
 </resources>
