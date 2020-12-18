@@ -26,8 +26,6 @@ class PasswordsAdapter: RecyclerView.Adapter<PasswordItemViewHolder>() {
         holder.username.text = item
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
+    override fun getItemCount() = data.size
 
 }
