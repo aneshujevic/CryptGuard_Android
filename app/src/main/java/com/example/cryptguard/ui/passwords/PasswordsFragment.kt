@@ -22,7 +22,7 @@ class PasswordsFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.fragment_passwords, container, false)
         val passwordRecycler = rootView.findViewById<RecyclerView>(R.id.passwords_recycler)
         passwordRecycler.layoutManager = LinearLayoutManager(activity)
-        passwordRecycler.adapter = PasswordsAdapter()
+        passwordRecycler.adapter = PasswordsAdapter(PasswordDetailClickListener())
         passwordsViewModel = ViewModelProvider(this).get(PasswordsViewModel::class.java)
         return rootView
     }
