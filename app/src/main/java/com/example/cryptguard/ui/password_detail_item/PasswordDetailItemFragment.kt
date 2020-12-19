@@ -8,12 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.cryptguard.R
 
-class password_detail_item : Fragment() {
-
-    companion object {
-        fun newInstance() = password_detail_item()
-    }
-
+class PasswordDetailItemFragment : Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
 
     override fun onCreateView(

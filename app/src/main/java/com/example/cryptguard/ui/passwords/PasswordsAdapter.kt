@@ -1,12 +1,15 @@
 package com.example.cryptguard.ui.passwords
 
-import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
+import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
 
-class PasswordsAdapter(private val passwordDetailClickListener: PasswordDetailClickListener): RecyclerView.Adapter<PasswordItemViewHolder>() {
+class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
     private var data = listOf<String>(
         "Hello",
         "is it me you're looking for",
@@ -41,7 +44,13 @@ class PasswordsAdapter(private val passwordDetailClickListener: PasswordDetailCl
         holder.siteName.text = item
         holder.username.text = item
         holder.showButton.setOnClickListener{
-            passwordDetailClickListener.onPasswordItemClick(parentView, position)
+            val activity = it.context as AppCompatActivity
+            val fragmentManager = activity.supportFragmentManager
+            val passDetailFrag = PasswordDetailItemFragment()
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragment_passwords, passDetailFrag, "details")
+                .addToBackStack("details")
+                .commit()
         }
     }
 
