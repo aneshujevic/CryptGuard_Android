@@ -3,22 +3,24 @@ package com.example.cryptguard.ui.password_detail_item
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
+import com.example.cryptguard.data.PasswordData
+import com.example.cryptguard.ui.passwords.PasswordsFragment
 import kotlinx.android.synthetic.main.password_detail_item_fragment.view.*
 import java.util.*
 
-class PasswordDetailItemFragment(private val position: Int) : Fragment() {
+class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
 
@@ -41,25 +43,100 @@ class PasswordDetailItemFragment(private val position: Int) : Fragment() {
         }
 
         root.button_show_password.setOnClickListener {
-            root.edit_text_password
-                ?.transformationMethod = if (root.edit_text_password.transformationMethod is PasswordTransformationMethod)
-                HideReturnsTransformationMethod.getInstance() else PasswordTransformationMethod.getInstance()
+            root.edit_text_password_pass_detail
+                ?.transformationMethod =
+                if (root.edit_text_password_pass_detail.transformationMethod is PasswordTransformationMethod)
+                    HideReturnsTransformationMethod.getInstance() else PasswordTransformationMethod.getInstance()
+        }
+
+        if (position != null) {
+            root.button_save_password.visibility = View.VISIBLE
+            root.button_delete_password.visibility = View.VISIBLE
+            root.button_add_password.visibility = View.INVISIBLE
+
+            root.button_save_password.setOnClickListener {
+                val pd = createPasswordData()
+                if (validateCreateOrSaveChanges(pd)) {
+                    showPasswordList(it)
+                }
+            }
+
+            root.button_delete_password.setOnClickListener {
+                viewModel.removeChosenPasswordData(position)
+                showPasswordList(it)
+            }
+
+        } else {
+            root.button_add_password.setOnClickListener {
+                val pd = createPasswordData()
+                if (validateCreateOrSaveChanges(pd)) {
+                    showPasswordList(it)
+                }
+            }
         }
 
         return root
     }
 
+    private fun showPasswordList(view: View) {
+        val activity = view.context as AppCompatActivity
+        val fragmentManager = activity.supportFragmentManager
+        val passwordsFragment = PasswordsFragment()
+        fragmentManager.beginTransaction()
+            .replace(R.id.fragment_passwords, passwordsFragment, "passwords")
+            .commit()
+    }
+
+    private fun createPasswordData(): PasswordData {
+        return PasswordData(
+            siteName = root.edit_text_site_name_pass_detail.text.toString(),
+            username = root.edit_text_username_pass_detail.text.toString(),
+            email = root.edit_text_email_pass_detail.text.toString(),
+            password = root.edit_text_password_pass_detail.text.toString(),
+            additionalData = root.edit_text_additional_data_pass_detail.text.toString()
+        )
+    }
+
+    private fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
+        if (!validatePasswordData(passwordData))
+            return false
+
+        if (position != null) {
+            viewModel.changePasswordData(position, passwordData)
+        } else {
+            viewModel.addPasswordData(passwordData)
+        }
+
+        return true
+    }
+
+    private fun validatePasswordData(passwordData: PasswordData): Boolean {
+        if (passwordData.siteName.isEmpty()) {
+            root.edit_text_site_name_pass_detail.error = "Site name must not be empty."
+            return false
+        }
+
+        if (passwordData.password.isEmpty()) {
+            root.edit_text_password_pass_detail.error = "Password field must not be empty."
+            return false
+        }
+
+        return true
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(PasswordDetailItemViewModel::class.java)
-        viewModel.setChosen(position)
-        viewModel.passwordData.value?.let { Log.d("ok", it.siteName) }
+        if (position != null) {
+            viewModel.setChosen(position)
+        }
 
-        val siteNameEditText= root.findViewById<EditText>(R.id.edit_text_site_name)
-        val usernameEditText = root.findViewById<EditText>(R.id.edit_text_username)
-        val emailEditText = root.findViewById<EditText>(R.id.edit_text_email)
-        val passwordEditText = root.findViewById<EditText>(R.id.edit_text_password)
-        val additionalDataEditText = root.findViewById<EditText>(R.id.edit_text_additional_data)
+        val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
+        val usernameEditText = root.findViewById<EditText>(R.id.edit_text_username_pass_detail)
+        val emailEditText = root.findViewById<EditText>(R.id.edit_text_email_pass_detail)
+        val passwordEditText = root.findViewById<EditText>(R.id.edit_text_password_pass_detail)
+        val additionalDataEditText =
+            root.findViewById<EditText>(R.id.edit_text_additional_data_pass_detail)
 
         viewModel.passwordData.observe(viewLifecycleOwner, {
             siteNameEditText.setText(it.siteName)
@@ -71,11 +148,12 @@ class PasswordDetailItemFragment(private val position: Int) : Fragment() {
     }
 
     private fun copyToClipboard(root: View, type: DataTypeCopying) {
-        val clipboard = root.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        val clipboard =
+            root.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val editText = when (type) {
-            DataTypeCopying.USERNAME -> root.edit_text_username
-            DataTypeCopying.PASSWORD -> root.edit_text_password
-            DataTypeCopying.EMAIL -> root.edit_text_email
+            DataTypeCopying.USERNAME -> root.edit_text_username_pass_detail
+            DataTypeCopying.PASSWORD -> root.edit_text_password_pass_detail
+            DataTypeCopying.EMAIL -> root.edit_text_email_pass_detail
         }
 
         val dataTypeString = when (type) {
@@ -94,12 +172,15 @@ class PasswordDetailItemFragment(private val position: Int) : Fragment() {
         val clip = ClipData.newPlainText("Copied data", data)
         clipboard?.setPrimaryClip(clip)
 
-        Toast.makeText(root.context,
-            "${dataTypeString.capitalize(Locale.getDefault())} successfully copied.", Toast.LENGTH_LONG)
+        Toast.makeText(
+            root.context,
+            "${dataTypeString.capitalize(Locale.getDefault())} successfully copied.",
+            Toast.LENGTH_LONG
+        )
             .show()
     }
 
-    private enum class DataTypeCopying (val type: Int) {
+    private enum class DataTypeCopying(val type: Int) {
         USERNAME(0),
         PASSWORD(1),
         EMAIL(2)

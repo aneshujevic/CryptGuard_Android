@@ -26,4 +26,5 @@
     <string name="password_detail_password">Password</string>
     <string name="password_detail_save">SAVE</string>
     <string name="password_detail_delete">DELETE</string>
+    <string name="password_detail_add">+</string>
 </resources>

@@ -5,17 +5,16 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
-import com.example.cryptguard.data.DummyPasswords
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
 
 class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
-    private var data = DummyPasswords().data
+    private var data = ArrayList<PasswordData>()
     set(value) {
         field = value
         notifyDataSetChanged()
     }
-    lateinit var parentView: ViewGroup
+   lateinit var parentView: ViewGroup
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PasswordItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -44,4 +43,7 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
 
     override fun getItemCount() = data.size
 
+    public fun setPasswords(passwords: ArrayList<PasswordData>) {
+        this.data = passwords
+    }
 }
