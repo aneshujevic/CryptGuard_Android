@@ -13,6 +13,7 @@ import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_passwords.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 
@@ -41,14 +42,22 @@ class PasswordsFragment : Fragment() {
                 passAdapter.setPasswords(it as ArrayList<PasswordData>)
                 passAdapter.notifyDataSetChanged()
         })
-        passwordsViewModel.updatePasswords()
 
-        rootView.add_password_item.setOnClickListener {
+        rootView.add_password_floating_button.setOnClickListener {
+            val addFloatingButton = rootView.findViewById<FloatingActionButton>(R.id.add_password_floating_button)
             val activity = it.context as AppCompatActivity
             val fragmentManager = activity.supportFragmentManager
+
+            // check if we're already in password detail fragment
+            val addPasswordFrag = fragmentManager.findFragmentByTag("password_details")
+            if (addPasswordFrag != null) {
+                return@setOnClickListener
+            }
+
+            // sending reference to floating button so callee can show it again
             val passwordDetailItem = PasswordDetailItemFragment(null)
             fragmentManager.beginTransaction()
-                .replace(R.id.fragment_passwords, passwordDetailItem, "passwords")
+                .replace(R.id.fragment_passwords, passwordDetailItem, "password_details")
                 .addToBackStack("passwords")
                 .commit()
         }

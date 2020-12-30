@@ -13,17 +13,20 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.ui.passwords.PasswordsFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.password_detail_item_fragment.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import java.util.*
 
+
 @InternalCoroutinesApi
-class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
+class PasswordDetailItemFragment( private val id: Int? ) : Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
 
@@ -35,7 +38,9 @@ class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
 
         val passDatabase = context?.let { PasswordDataDatabase.getDatabase(it) }
         if (passDatabase != null) {
-            viewModel = PasswordDetailItemViewModelFactory(PasswordDataRepo(passDatabase.passwordDataDao())).create(PasswordDetailItemViewModel::class.java)
+            viewModel = PasswordDetailItemViewModelFactory(PasswordDataRepo(passDatabase.passwordDataDao())).create(
+                PasswordDetailItemViewModel::class.java
+            )
         }
 
         root.button_copy_username_to_clipboard.setOnClickListener {
@@ -65,20 +70,26 @@ class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
             root.button_save_password.setOnClickListener {
                 val pd = createPasswordData(id)
                 if (validateCreateOrSaveChanges(pd)) {
-                    showPasswordList(it)
+                    showPasswordListFragment(it)
                 }
             }
 
             root.button_delete_password.setOnClickListener {
                 viewModel.removeChosenPasswordData(id)
-                showPasswordList(it)
+                Toast.makeText(
+                    requireContext(),
+                    "Password data successfully removed.",
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+                showPasswordListFragment(it)
             }
 
         } else {
             root.button_add_password.setOnClickListener {
                 val pd = createPasswordData()
                 if (validateCreateOrSaveChanges(pd)) {
-                    showPasswordList(it)
+                    showPasswordListFragment(it)
                 }
             }
         }
@@ -86,7 +97,7 @@ class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
         return root
     }
 
-    private fun showPasswordList(view: View) {
+    private fun showPasswordListFragment(view: View) {
         val activity = view.context as AppCompatActivity
         val fragmentManager = activity.supportFragmentManager
         val passwordsFragment = PasswordsFragment()
@@ -109,10 +120,19 @@ class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
     private fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
         if (!validatePasswordData(passwordData))
             return false
+
         if (id != null) {
             viewModel.updatePasswordData(passwordData)
+            Toast.makeText(
+                requireContext(),
+                "Password data successfully updated.",
+                Toast.LENGTH_LONG
+            )
+                .show()
         } else {
             viewModel.addPasswordData(passwordData)
+            Toast.makeText(requireContext(), "Password data successfully added.", Toast.LENGTH_LONG)
+                .show()
         }
 
         return true
@@ -159,6 +179,7 @@ class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
     private fun copyToClipboard(root: View, type: DataTypeCopying) {
         val clipboard =
             root.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+
         val editText = when (type) {
             DataTypeCopying.USERNAME -> root.edit_text_username_pass_detail
             DataTypeCopying.PASSWORD -> root.edit_text_password_pass_detail
