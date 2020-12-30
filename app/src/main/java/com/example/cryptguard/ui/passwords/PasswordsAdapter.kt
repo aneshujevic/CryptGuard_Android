@@ -29,13 +29,14 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
 
     override fun onBindViewHolder(holder: PasswordItemViewHolder, position: Int) {
         val item = data[position]
+        val id = item.id
         holder.siteName.text = item.siteName
         holder.username.text = item.username
 
         holder.showButton.setOnClickListener{
             val activity = it.context as AppCompatActivity
             val fragmentManager = activity.supportFragmentManager
-            val passDetailFrag = PasswordDetailItemFragment(position + 1)
+            val passDetailFrag = PasswordDetailItemFragment(id)
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_passwords, passDetailFrag, "details")
                 .addToBackStack("details")

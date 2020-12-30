@@ -5,8 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.data.PasswordData
 
-class PasswordsViewModel(passwordDataRepo: PasswordDataRepo) : ViewModel() {
-
+class PasswordsViewModel(private val passwordDataRepo: PasswordDataRepo) : ViewModel() {
     var repo = passwordDataRepo.getAllPasswordData()
 
     fun getPasswordsDataObserver(): MutableLiveData<List<PasswordData>> {
@@ -14,6 +13,6 @@ class PasswordsViewModel(passwordDataRepo: PasswordDataRepo) : ViewModel() {
     }
 
     fun updatePasswords() {
-        repo.value = repo.value
+        repo = passwordDataRepo.getAllPasswordData()
     }
 }
