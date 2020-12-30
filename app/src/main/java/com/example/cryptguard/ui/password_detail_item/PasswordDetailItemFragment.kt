@@ -23,7 +23,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import java.util.*
 
 @InternalCoroutinesApi
-class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
+class PasswordDetailItemFragment(private val id: Int?) : Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
 
@@ -57,20 +57,20 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
                     HideReturnsTransformationMethod.getInstance() else PasswordTransformationMethod.getInstance()
         }
 
-        if (position != null) {
+        if (id != null) {
             root.button_save_password.visibility = View.VISIBLE
             root.button_delete_password.visibility = View.VISIBLE
             root.button_add_password.visibility = View.INVISIBLE
 
             root.button_save_password.setOnClickListener {
-                val pd = createPasswordData()
+                val pd = createPasswordData(id)
                 if (validateCreateOrSaveChanges(pd)) {
                     showPasswordList(it)
                 }
             }
 
             root.button_delete_password.setOnClickListener {
-                viewModel.removeChosenPasswordData(position)
+                viewModel.removeChosenPasswordData(id)
                 showPasswordList(it)
             }
 
@@ -109,7 +109,7 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
     private fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
         if (!validatePasswordData(passwordData))
             return false
-        if (position != null) {
+        if (id != null) {
             viewModel.updatePasswordData(passwordData)
         } else {
             viewModel.addPasswordData(passwordData)
@@ -136,8 +136,8 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        if (position != null) {
-            viewModel.setChosen(position)
+        if (id != null) {
+            viewModel.setChosen(id)
         }
 
         val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
