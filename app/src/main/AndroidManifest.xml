@@ -6,12 +6,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CryptGuard">
+        android:theme="@style/Theme.CryptGuard"
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:allowBackup="true">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

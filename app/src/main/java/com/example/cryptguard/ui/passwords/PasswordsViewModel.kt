@@ -1,21 +1,19 @@
 package com.example.cryptguard.ui.passwords
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.cryptguard.data.DummyPasswords
-import com.example.cryptguard.data.DummyPasswords.Companion.repo
+import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.data.PasswordData
 
-class PasswordsViewModel : ViewModel() {
+class PasswordsViewModel(passwordDataRepo: PasswordDataRepo) : ViewModel() {
 
-    var repo = DummyPasswords.repo.data
+    var repo = passwordDataRepo.getAllPasswordData()
 
-    fun getPasswordsDataObserver(): MutableLiveData<ArrayList<PasswordData>> {
+    fun getPasswordsDataObserver(): MutableLiveData<List<PasswordData>> {
         return repo
     }
 
     fun updatePasswords() {
-        repo.value = DummyPasswords.repo.data.value
+        repo.value = repo.value
     }
 }

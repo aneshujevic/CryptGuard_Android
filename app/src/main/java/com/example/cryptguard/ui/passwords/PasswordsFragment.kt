@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
+import com.example.cryptguard.data.PasswordData
+import com.example.cryptguard.data.PasswordDataDatabase
+import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
 import kotlinx.android.synthetic.main.fragment_passwords.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class PasswordsFragment : Fragment() {
 
     private lateinit var passwordsViewModel: PasswordsViewModel
@@ -27,9 +31,14 @@ class PasswordsFragment : Fragment() {
         passwordRecycler.layoutManager = LinearLayoutManager(requireActivity())
         val passAdapter = PasswordsAdapter()
         passwordRecycler.adapter = passAdapter
-        passwordsViewModel = ViewModelProvider(this).get(PasswordsViewModel::class.java)
+
+        val passDatabase = context?.let { PasswordDataDatabase.getDatabase(it) }
+        if (passDatabase != null) {
+            passwordsViewModel =  PasswordsViewModel( PasswordDataRepo(passDatabase.passwordDataDao()) )
+        }
+
         passwordsViewModel.getPasswordsDataObserver().observe(viewLifecycleOwner, {
-                passAdapter.setPasswords(it)
+                passAdapter.setPasswords(it as ArrayList<PasswordData>)
                 passAdapter.notifyDataSetChanged()
         })
         passwordsViewModel.updatePasswords()

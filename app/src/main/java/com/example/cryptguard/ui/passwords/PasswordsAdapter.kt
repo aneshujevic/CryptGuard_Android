@@ -7,7 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
     private var data = ArrayList<PasswordData>()
     set(value) {
@@ -33,7 +35,7 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
         holder.showButton.setOnClickListener{
             val activity = it.context as AppCompatActivity
             val fragmentManager = activity.supportFragmentManager
-            val passDetailFrag = PasswordDetailItemFragment(position)
+            val passDetailFrag = PasswordDetailItemFragment(position + 1)
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_passwords, passDetailFrag, "details")
                 .addToBackStack("details")

@@ -13,13 +13,16 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
+import com.example.cryptguard.data.PasswordDataDatabase
+import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.ui.passwords.PasswordsFragment
 import kotlinx.android.synthetic.main.password_detail_item_fragment.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import java.util.*
 
+@InternalCoroutinesApi
 class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
@@ -29,6 +32,11 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         root = inflater.inflate(R.layout.password_detail_item_fragment, container, false)
+
+        val passDatabase = context?.let { PasswordDataDatabase.getDatabase(it) }
+        if (passDatabase != null) {
+            viewModel = PasswordDetailItemViewModelFactory(PasswordDataRepo(passDatabase.passwordDataDao())).create(PasswordDetailItemViewModel::class.java)
+        }
 
         root.button_copy_username_to_clipboard.setOnClickListener {
             copyToClipboard(root, DataTypeCopying.USERNAME)
@@ -87,8 +95,9 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
             .commit()
     }
 
-    private fun createPasswordData(): PasswordData {
+    private fun createPasswordData(id: Int? = null): PasswordData {
         return PasswordData(
+            id = id,
             siteName = root.edit_text_site_name_pass_detail.text.toString(),
             username = root.edit_text_username_pass_detail.text.toString(),
             email = root.edit_text_email_pass_detail.text.toString(),
@@ -100,9 +109,8 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
     private fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
         if (!validatePasswordData(passwordData))
             return false
-
         if (position != null) {
-            viewModel.changePasswordData(position, passwordData)
+            viewModel.updatePasswordData(passwordData)
         } else {
             viewModel.addPasswordData(passwordData)
         }
@@ -124,9 +132,10 @@ class PasswordDetailItemFragment(private val position: Int?) : Fragment() {
         return true
     }
 
+    @InternalCoroutinesApi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PasswordDetailItemViewModel::class.java)
+
         if (position != null) {
             viewModel.setChosen(position)
         }
