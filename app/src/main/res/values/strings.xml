@@ -27,4 +27,5 @@
     <string name="password_detail_save">SAVE</string>
     <string name="password_detail_delete">DELETE</string>
     <string name="password_detail_add">+</string>
+    <string name="empty_passwords_recycler_text">It appears you have no passwords saved. Press + to start adding some.</string>
 </resources>

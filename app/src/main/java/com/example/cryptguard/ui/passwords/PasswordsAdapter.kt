@@ -7,10 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @InternalCoroutinesApi
-class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
+class PasswordsAdapter(private val fab: FloatingActionButton): RecyclerView.Adapter<PasswordItemViewHolder>() {
     private var data = ArrayList<PasswordData>()
     set(value) {
         field = value
@@ -36,7 +37,7 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
         holder.showButton.setOnClickListener{
             val activity = it.context as AppCompatActivity
             val fragmentManager = activity.supportFragmentManager
-            val passDetailFrag = PasswordDetailItemFragment(id)
+            val passDetailFrag = PasswordDetailItemFragment(id, fab)
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_passwords, passDetailFrag, "details")
                 .addToBackStack("details")

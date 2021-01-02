@@ -13,7 +13,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
@@ -26,7 +25,7 @@ import java.util.*
 
 
 @InternalCoroutinesApi
-class PasswordDetailItemFragment( private val id: Int? ) : Fragment() {
+class PasswordDetailItemFragment(private val id: Int?, private val fab: FloatingActionButton?) : Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
 
@@ -38,9 +37,10 @@ class PasswordDetailItemFragment( private val id: Int? ) : Fragment() {
 
         val passDatabase = context?.let { PasswordDataDatabase.getDatabase(it) }
         if (passDatabase != null) {
-            viewModel = PasswordDetailItemViewModelFactory(PasswordDataRepo(passDatabase.passwordDataDao())).create(
-                PasswordDetailItemViewModel::class.java
-            )
+            viewModel =
+                PasswordDetailItemViewModelFactory(PasswordDataRepo(passDatabase.passwordDataDao())).create(
+                    PasswordDetailItemViewModel::class.java
+                )
         }
 
         root.button_copy_username_to_clipboard.setOnClickListener {
@@ -95,6 +95,37 @@ class PasswordDetailItemFragment( private val id: Int? ) : Fragment() {
         }
 
         return root
+    }
+
+    @InternalCoroutinesApi
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        if (id != null) {
+            viewModel.setChosen(id)
+        }
+
+        val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
+        val usernameEditText = root.findViewById<EditText>(R.id.edit_text_username_pass_detail)
+        val emailEditText = root.findViewById<EditText>(R.id.edit_text_email_pass_detail)
+        val passwordEditText = root.findViewById<EditText>(R.id.edit_text_password_pass_detail)
+        val additionalDataEditText =
+            root.findViewById<EditText>(R.id.edit_text_additional_data_pass_detail)
+
+        viewModel.passwordData.observe(viewLifecycleOwner, {
+            siteNameEditText.setText(it.siteName)
+            usernameEditText.setText(it.username)
+            emailEditText.setText(it.email)
+            passwordEditText.setText(it.password)
+            additionalDataEditText.setText(it.additionalData)
+        })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (fab != null) {
+            fab.visibility = View.VISIBLE
+        }
     }
 
     private fun showPasswordListFragment(view: View) {
@@ -152,30 +183,6 @@ class PasswordDetailItemFragment( private val id: Int? ) : Fragment() {
         return true
     }
 
-    @InternalCoroutinesApi
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        if (id != null) {
-            viewModel.setChosen(id)
-        }
-
-        val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
-        val usernameEditText = root.findViewById<EditText>(R.id.edit_text_username_pass_detail)
-        val emailEditText = root.findViewById<EditText>(R.id.edit_text_email_pass_detail)
-        val passwordEditText = root.findViewById<EditText>(R.id.edit_text_password_pass_detail)
-        val additionalDataEditText =
-            root.findViewById<EditText>(R.id.edit_text_additional_data_pass_detail)
-
-        viewModel.passwordData.observe(viewLifecycleOwner, {
-            siteNameEditText.setText(it.siteName)
-            usernameEditText.setText(it.username)
-            emailEditText.setText(it.email)
-            passwordEditText.setText(it.password)
-            additionalDataEditText.setText(it.additionalData)
-        })
-    }
-
     private fun copyToClipboard(root: View, type: DataTypeCopying) {
         val clipboard =
             root.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
@@ -210,9 +217,9 @@ class PasswordDetailItemFragment( private val id: Int? ) : Fragment() {
             .show()
     }
 
-    private enum class DataTypeCopying(val type: Int) {
-        USERNAME(0),
-        PASSWORD(1),
-        EMAIL(2)
+    private enum class DataTypeCopying {
+        USERNAME,
+        PASSWORD,
+        EMAIL
     }
 }

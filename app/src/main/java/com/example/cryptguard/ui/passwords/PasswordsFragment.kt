@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,7 +14,6 @@ import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_passwords.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 
@@ -30,7 +30,7 @@ class PasswordsFragment : Fragment() {
         val rootView = inflater.inflate(R.layout.fragment_passwords, container, false)
         val passwordRecycler = rootView.findViewById<RecyclerView>(R.id.passwords_recycler)
         passwordRecycler.layoutManager = LinearLayoutManager(requireActivity())
-        val passAdapter = PasswordsAdapter()
+        val passAdapter = PasswordsAdapter(rootView.add_password_floating_button)
         passwordRecycler.adapter = passAdapter
 
         val passDatabase = context?.let { PasswordDataDatabase.getDatabase(it) }
@@ -40,11 +40,13 @@ class PasswordsFragment : Fragment() {
 
         passwordsViewModel.getPasswordsDataObserver().observe(viewLifecycleOwner, {
                 passAdapter.setPasswords(it as ArrayList<PasswordData>)
+                if (passAdapter.itemCount != 0) {
+                    rootView.findViewById<TextView>(R.id.empty_passwords_recycler_text).visibility = View.INVISIBLE
+                }
                 passAdapter.notifyDataSetChanged()
         })
 
         rootView.add_password_floating_button.setOnClickListener {
-            val addFloatingButton = rootView.findViewById<FloatingActionButton>(R.id.add_password_floating_button)
             val activity = it.context as AppCompatActivity
             val fragmentManager = activity.supportFragmentManager
 
@@ -54,8 +56,9 @@ class PasswordsFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // sending reference to floating button so callee can show it again
-            val passwordDetailItem = PasswordDetailItemFragment(null)
+            rootView.add_password_floating_button.visibility = View.INVISIBLE
+
+            val passwordDetailItem = PasswordDetailItemFragment(null, rootView.add_password_floating_button)
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_passwords, passwordDetailItem, "password_details")
                 .addToBackStack("passwords")
