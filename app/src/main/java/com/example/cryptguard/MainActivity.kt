@@ -1,22 +1,24 @@
 package com.example.cryptguard
 
+import android.content.DialogInterface
 import android.os.Bundle
+import android.text.InputType
 import android.view.Menu
-import com.google.android.material.navigation.NavigationView
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.example.cryptguard.data.PasswordDataDatabase
-import com.example.cryptguard.data.PasswordDataRepo
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     @InternalCoroutinesApi
@@ -31,8 +33,14 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.mob_nav_database, R.id.mob_nav_passwords, R.id.mob_nav_generator, R.id.mob_nav_encrypter), drawerLayout)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.mob_nav_database,
+                R.id.mob_nav_passwords,
+                R.id.mob_nav_encrypter,
+                R.id.mob_nav_generator
+            ), drawerLayout
+        )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }

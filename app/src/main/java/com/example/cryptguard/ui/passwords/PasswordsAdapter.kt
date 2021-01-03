@@ -7,11 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @InternalCoroutinesApi
-class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
-    private var data = ArrayList<PasswordData>()
+class PasswordsAdapter(private val fab: FloatingActionButton): RecyclerView.Adapter<PasswordItemViewHolder>() {
+    private var data = ArrayList<PasswordData?>()
     set(value) {
         field = value
         notifyDataSetChanged()
@@ -28,7 +29,9 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: PasswordItemViewHolder, position: Int) {
-        val item = data[position]
+        if (data[0] == null)
+            return
+        val item = data[position] ?: return
         val id = item.id
         holder.siteName.text = item.siteName
         holder.username.text = item.username
@@ -36,7 +39,7 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
         holder.showButton.setOnClickListener{
             val activity = it.context as AppCompatActivity
             val fragmentManager = activity.supportFragmentManager
-            val passDetailFrag = PasswordDetailItemFragment(id)
+            val passDetailFrag = PasswordDetailItemFragment(id, fab)
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_passwords, passDetailFrag, "details")
                 .addToBackStack("details")
@@ -46,7 +49,7 @@ class PasswordsAdapter(): RecyclerView.Adapter<PasswordItemViewHolder>() {
 
     override fun getItemCount() = data.size
 
-    public fun setPasswords(passwords: ArrayList<PasswordData>) {
+    fun setPasswords(passwords: ArrayList<PasswordData?>) {
         this.data = passwords
     }
 }
