@@ -13,12 +13,13 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
     var passphrase: String? = null
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun updatePasswordData(passwordData: PasswordData) {
-        val encryptedData = encryptPasswordData(passwordData)?.let { EncryptedData(encryptedPasswordData = it) }
+        val encryptedData =
+            encryptPasswordData(passwordData)?.let { EncryptedData(encryptedPasswordData = it) }
         if (encryptedData != null) {
             encryptedDataDao.updateEncryptedData(encryptedData)
         }
@@ -28,43 +29,46 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         encryptedDataDao.removeEncryptedDataById(position)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun addPasswordData(passwordData: PasswordData) {
-        val encryptedData = encryptPasswordData(passwordData)?.let { EncryptedData(encryptedPasswordData = it) }
+        val encryptedData =
+            encryptPasswordData(passwordData)?.let { EncryptedData(encryptedPasswordData = it) }
         if (encryptedData != null) {
             encryptedDataDao.insertEncryptedData(encryptedData)
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getPasswordData(position: Int): PasswordData? = withContext(Dispatchers.IO) {
         val encryptedData = encryptedDataDao.getEncryptedDataById(position)
         decryptPasswordData(encryptedData.id, encryptedData.encryptedPasswordData)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun getAllPasswordData(): MutableLiveData<List<PasswordData?>> = withContext(Dispatchers.IO) {
-        MutableLiveData(encryptedDataDao.getAllEncryptedData().map{
-            decryptPasswordData(it.id, it.encryptedPasswordData)
-        })
-    }
+    suspend fun getAllPasswordData(): MutableLiveData<List<PasswordData?>> =
+        withContext(Dispatchers.IO) {
+            MutableLiveData(encryptedDataDao.getAllEncryptedData().map {
+                decryptPasswordData(it.id, it.encryptedPasswordData)
+            })
+        }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun encryptPasswordData(passwordData: PasswordData): String? = withContext(Dispatchers.IO) {
-        val pdEncoded = Gson().toJson(passwordData)
-        passphrase?.let { Encrypter.encryptStringAndGetBase64(pdEncoded, it) }
-    }
+    private suspend fun encryptPasswordData(passwordData: PasswordData): String? =
+        withContext(Dispatchers.IO) {
+            val pdEncoded = Gson().toJson(passwordData)
+            passphrase?.let { Encrypter.encryptStringAndGetBase64(pdEncoded, it) }
+        }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun decryptPasswordData(id: Int?, base64encodedPasswordData: String): PasswordData? = withContext(Dispatchers.IO) {
+    private suspend fun decryptPasswordData(
+        id: Int?,
+        base64encodedPasswordData: String
+    ): PasswordData? = withContext(Dispatchers.IO) {
         val base64DataArray = base64encodedPasswordData.split("\n")
         val pdEncrypted = base64DataArray[0].plus(base64DataArray[1])
         val salt = base64DataArray[2]
         val iv = base64DataArray[3]
 
-        val pd = Gson().fromJson (passphrase?.let {
-            Encrypter.decryptBase64String(pdEncrypted,
-                it, salt, iv)
+        val pd = Gson().fromJson(passphrase?.let {
+            Encrypter.decryptBase64String(
+                pdEncrypted,
+                it, salt, iv
+            )
         }, PasswordData::class.java)
         pd?.id = id
         pd
@@ -77,14 +81,15 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
 
         val input = EditText(context)
         input.inputType = InputType.TYPE_CLASS_TEXT
+        input.hint = "Enter your current database password"
         builder.setView(input)
 
-        builder.setPositiveButton("OK") {
-                _, _ -> passphrase = input.text.toString()
+        builder.setPositiveButton("OK") { _, _ ->
+            passphrase = input.text.toString()
         }
 
-        builder.setNegativeButton("Cancel") {
-                dialog: DialogInterface, _ -> dialog.cancel()
+        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _ ->
+            dialog.cancel()
         }
 
         builder.show()

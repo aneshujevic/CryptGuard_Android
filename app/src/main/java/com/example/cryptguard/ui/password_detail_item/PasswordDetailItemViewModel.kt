@@ -8,32 +8,34 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.data.PasswordDataRepository
 import com.example.cryptguard.data.PasswordData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PasswordDetailItemViewModel(private val passwordRepo: PasswordDataRepository) : ViewModel() {
     private val _chosenPassword = MutableLiveData<PasswordData>()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun setChosen(position: Int) {
+    suspend fun setChosen(position: Int) = withContext(Dispatchers.IO) {
         _chosenPassword.value = passwordRepo.getPasswordData(position)
     }
 
-    suspend fun removeChosenPasswordData(position: Int) {
+    suspend fun removeChosenPasswordData(position: Int) = withContext(Dispatchers.IO) {
         passwordRepo.removePasswordData(position)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun addPasswordData(passwordData: PasswordData) {
+    suspend fun addPasswordData(passwordData: PasswordData) = withContext(Dispatchers.IO) {
         passwordRepo.addPasswordData(passwordData)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updatePasswordData(passwordData: PasswordData) {
+    suspend fun updatePasswordData(passwordData: PasswordData) = withContext(Dispatchers.IO) {
         passwordRepo.updatePasswordData(passwordData)
     }
 
     val passwordData: LiveData<PasswordData> = _chosenPassword
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PasswordDetailItemViewModelFactory(private val repository: PasswordDataRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PasswordDetailItemViewModel::class.java)) {

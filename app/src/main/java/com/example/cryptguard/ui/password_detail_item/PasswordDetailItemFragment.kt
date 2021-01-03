@@ -3,6 +3,7 @@ package com.example.cryptguard.ui.password_detail_item
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.cryptguard.R
@@ -22,6 +24,7 @@ import kotlinx.android.synthetic.main.password_detail_item_fragment.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 
@@ -159,12 +162,13 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
         if (!validatePasswordData(passwordData))
             return false
 
         if (id != null) {
-            (context as CoroutineScope).launch {
+            runBlocking {
                 viewModel.updatePasswordData(passwordData)
                 Toast.makeText(
                     requireContext(),
@@ -174,7 +178,7 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
                     .show()
             }
         } else {
-            (context as CoroutineScope).launch {
+            runBlocking {
                 viewModel.addPasswordData(passwordData)
                 Toast.makeText(
                     requireContext(),
