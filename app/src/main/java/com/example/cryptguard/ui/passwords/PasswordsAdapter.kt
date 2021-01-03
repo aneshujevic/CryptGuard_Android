@@ -12,7 +12,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 
 @InternalCoroutinesApi
 class PasswordsAdapter(private val fab: FloatingActionButton): RecyclerView.Adapter<PasswordItemViewHolder>() {
-    private var data = ArrayList<PasswordData>()
+    private var data = ArrayList<PasswordData?>()
     set(value) {
         field = value
         notifyDataSetChanged()
@@ -29,7 +29,9 @@ class PasswordsAdapter(private val fab: FloatingActionButton): RecyclerView.Adap
     }
 
     override fun onBindViewHolder(holder: PasswordItemViewHolder, position: Int) {
-        val item = data[position]
+        if (data[0] == null)
+            return
+        val item = data[position] ?: return
         val id = item.id
         holder.siteName.text = item.siteName
         holder.username.text = item.username
@@ -47,7 +49,7 @@ class PasswordsAdapter(private val fab: FloatingActionButton): RecyclerView.Adap
 
     override fun getItemCount() = data.size
 
-    public fun setPasswords(passwords: ArrayList<PasswordData>) {
+    fun setPasswords(passwords: ArrayList<PasswordData?>) {
         this.data = passwords
     }
 }

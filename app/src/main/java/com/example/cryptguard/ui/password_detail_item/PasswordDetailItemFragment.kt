@@ -16,16 +16,18 @@ import androidx.fragment.app.Fragment
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
-import com.example.cryptguard.data.PasswordDataRepo
 import com.example.cryptguard.ui.passwords.PasswordsFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.password_detail_item_fragment.view.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
 import java.util.*
 
 
 @InternalCoroutinesApi
-class PasswordDetailItemFragment(private val id: Int?, private val fab: FloatingActionButton?) : Fragment() {
+class PasswordDetailItemFragment(private val id: Int?, private val fab: FloatingActionButton?) :
+    Fragment() {
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
 
@@ -34,13 +36,19 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         savedInstanceState: Bundle?
     ): View {
         root = inflater.inflate(R.layout.password_detail_item_fragment, container, false)
+        fab?.visibility = View.INVISIBLE
 
         val passDatabase = context?.let { PasswordDataDatabase.getDatabase(it) }
         if (passDatabase != null) {
             viewModel =
-                PasswordDetailItemViewModelFactory(PasswordDataRepo(passDatabase.passwordDataDao())).create(
-                    PasswordDetailItemViewModel::class.java
-                )
+                PasswordDataDatabase.getRepository(requireContext())?.let {
+                    if (it.passphrase == null) {
+                        it.getDatabasePasswordDialog(requireContext())
+                    }
+                    PasswordDetailItemViewModelFactory(it).create(
+                        PasswordDetailItemViewModel::class.java
+                    )
+                }!!
         }
 
         root.button_copy_username_to_clipboard.setOnClickListener {
@@ -62,6 +70,7 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
                     HideReturnsTransformationMethod.getInstance() else PasswordTransformationMethod.getInstance()
         }
 
+        // if we're viewing some password data the buttons should be visible
         if (id != null) {
             root.button_save_password.visibility = View.VISIBLE
             root.button_delete_password.visibility = View.VISIBLE
@@ -75,7 +84,9 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
             }
 
             root.button_delete_password.setOnClickListener {
-                viewModel.removeChosenPasswordData(id)
+                (context as CoroutineScope).launch {
+                    viewModel.removeChosenPasswordData(id)
+                }
                 Toast.makeText(
                     requireContext(),
                     "Password data successfully removed.",
@@ -102,7 +113,9 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         super.onActivityCreated(savedInstanceState)
 
         if (id != null) {
-            viewModel.setChosen(id)
+            (context as CoroutineScope).launch {
+                viewModel.setChosen(id)
+            }
         }
 
         val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
@@ -123,9 +136,7 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
 
     override fun onDestroy() {
         super.onDestroy()
-        if (fab != null) {
-            fab.visibility = View.VISIBLE
-        }
+        fab?.visibility = View.VISIBLE
     }
 
     private fun showPasswordListFragment(view: View) {
@@ -153,17 +164,25 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
             return false
 
         if (id != null) {
-            viewModel.updatePasswordData(passwordData)
-            Toast.makeText(
-                requireContext(),
-                "Password data successfully updated.",
-                Toast.LENGTH_LONG
-            )
-                .show()
+            (context as CoroutineScope).launch {
+                viewModel.updatePasswordData(passwordData)
+                Toast.makeText(
+                    requireContext(),
+                    "Password data successfully updated.",
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+            }
         } else {
-            viewModel.addPasswordData(passwordData)
-            Toast.makeText(requireContext(), "Password data successfully added.", Toast.LENGTH_LONG)
-                .show()
+            (context as CoroutineScope).launch {
+                viewModel.addPasswordData(passwordData)
+                Toast.makeText(
+                    requireContext(),
+                    "Password data successfully added.",
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+            }
         }
 
         return true

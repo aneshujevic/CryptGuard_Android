@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
 import kotlinx.android.synthetic.main.fragment_encrypter.*
 import kotlinx.android.synthetic.main.fragment_encrypter.view.*
@@ -66,7 +65,7 @@ class EncrypterFragment : Fragment() {
                 val line = requireContext().contentResolver?.openInputStream(it)?.buffered()
                     .use { fileStream ->
                         if (fileStream != null) {
-                            encryptedBase64 = Encrypter.encryptAndGetBase64(
+                            encryptedBase64 = Encrypter.encryptStreamAndGetBase64(
                                 fileStream,
                                 this.password_encrypter_edit_text.text.toString()
                             )
@@ -98,7 +97,7 @@ class EncrypterFragment : Fragment() {
                     .use { fileStream ->
                         if (fileStream != null) {
                             try {
-                                plainText = Encrypter.decrypt(
+                                plainText = Encrypter.decryptStream(
                                     fileStream,
                                     this.password_encrypter_edit_text.text.toString()
                                 )
