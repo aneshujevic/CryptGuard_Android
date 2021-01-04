@@ -34,6 +34,39 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
     private lateinit var viewModel: PasswordDetailItemViewModel
     private lateinit var root: View
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    @InternalCoroutinesApi
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        if (id != null) {
+            (context as CoroutineScope).launch {
+                viewModel.setChosen(id)
+            }
+        }
+
+        val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
+        val usernameEditText = root.findViewById<EditText>(R.id.edit_text_username_pass_detail)
+        val emailEditText = root.findViewById<EditText>(R.id.edit_text_email_pass_detail)
+        val passwordEditText = root.findViewById<EditText>(R.id.edit_text_password_pass_detail)
+        val additionalDataEditText =
+            root.findViewById<EditText>(R.id.edit_text_additional_data_pass_detail)
+
+        viewModel.passwordData.observe(viewLifecycleOwner, {
+            siteNameEditText.setText(it.siteName)
+            usernameEditText.setText(it.username)
+            emailEditText.setText(it.email)
+            passwordEditText.setText(it.password)
+            additionalDataEditText.setText(it.additionalData)
+        })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        fab?.visibility = View.VISIBLE
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,9 +78,6 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         if (passDatabase != null) {
             viewModel =
                 PasswordDataDatabase.getRepository(requireContext())?.let {
-                    if (it.passphrase == null) {
-                        it.getDatabasePasswordDialog(requireContext())
-                    }
                     PasswordDetailItemViewModelFactory(it).create(
                         PasswordDetailItemViewModel::class.java
                     )
@@ -109,37 +139,6 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         }
 
         return root
-    }
-
-    @InternalCoroutinesApi
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        if (id != null) {
-            (context as CoroutineScope).launch {
-                viewModel.setChosen(id)
-            }
-        }
-
-        val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
-        val usernameEditText = root.findViewById<EditText>(R.id.edit_text_username_pass_detail)
-        val emailEditText = root.findViewById<EditText>(R.id.edit_text_email_pass_detail)
-        val passwordEditText = root.findViewById<EditText>(R.id.edit_text_password_pass_detail)
-        val additionalDataEditText =
-            root.findViewById<EditText>(R.id.edit_text_additional_data_pass_detail)
-
-        viewModel.passwordData.observe(viewLifecycleOwner, {
-            siteNameEditText.setText(it.siteName)
-            usernameEditText.setText(it.username)
-            emailEditText.setText(it.email)
-            passwordEditText.setText(it.password)
-            additionalDataEditText.setText(it.additionalData)
-        })
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        fab?.visibility = View.VISIBLE
     }
 
     private fun showPasswordListFragment(view: View) {

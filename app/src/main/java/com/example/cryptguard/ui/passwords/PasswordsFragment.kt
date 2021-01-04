@@ -6,15 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_passwords.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -30,7 +33,14 @@ class PasswordsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        if (PasswordDataDatabase.getRepository(requireContext())?.passphrase == null) {
+            Toast.makeText(requireContext(), "Please enter the passphrase to unlock your database.", Toast.LENGTH_LONG)
+                .show()
+            findNavController().navigate(R.id.mob_nav_database)
+        }
+
         val rootView = inflater.inflate(R.layout.fragment_passwords, container, false)
+
         val passwordRecycler = rootView.findViewById<RecyclerView>(R.id.passwords_recycler)
         passwordRecycler.layoutManager = LinearLayoutManager(requireActivity())
         val passAdapter = PasswordsAdapter(rootView.add_password_floating_button)
@@ -38,10 +48,6 @@ class PasswordsFragment : Fragment() {
 
         runBlocking {
             passwordsViewModel = PasswordDataDatabase.getRepository(requireContext())?.let {
-                if (it.passphrase == null) {
-                    it.getDatabasePasswordDialog(requireContext())
-                }
-
                 PasswordsViewModel(
                     it,
                     requireContext()

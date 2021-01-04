@@ -28,4 +28,12 @@
     <string name="password_detail_delete">DELETE</string>
     <string name="password_detail_add">+</string>
     <string name="empty_passwords_recycler_text">It appears you have no passwords saved. Press + to start adding some.</string>
+    <string name="database_settings_text">Database settings</string>
+    <string name="current_database_password_text">Enter current database password</string>
+    <string name="import_db_button_text">IMPORT</string>
+    <string name="export_db_button_text">EXPORT</string>
+    <string name="unlock_db_button_text">UNLOCK</string>
+    <string name="change_db_password_button_text">CHANGE PASSWORD</string>
+    <string name="new_database_password_text">Enter new database password</string>
+    <string name="database_operations_text">Database operations</string>
 </resources>

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
 
@@ -22,10 +21,12 @@ class DatabaseFragment : Fragment() {
         databaseViewModel =
                 ViewModelProvider(this).get(DatabaseViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_database, container, false)
-        val textView: TextView = root.findViewById(R.id.text_home)
-        databaseViewModel.text.observe(viewLifecycleOwner, Observer {
+        val textView: TextView = root.findViewById(R.id.database_settings_text_view)
+        /*
+        databaseViewModel.text.observe(viewLifecycleOwner, {
             textView.text = it
         })
+        */
         return root
     }
 }

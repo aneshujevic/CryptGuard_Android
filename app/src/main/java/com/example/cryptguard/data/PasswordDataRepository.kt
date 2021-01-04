@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.os.Build
 import android.text.InputType
 import android.widget.EditText
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
@@ -72,26 +73,5 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         }, PasswordData::class.java)
         pd?.id = id
         pd
-    }
-
-
-    fun getDatabasePasswordDialog(context: Context) {
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("Database password")
-
-        val input = EditText(context)
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        input.hint = "Enter your current database password"
-        builder.setView(input)
-
-        builder.setPositiveButton("OK") { _, _ ->
-            passphrase = input.text.toString()
-        }
-
-        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _ ->
-            dialog.cancel()
-        }
-
-        builder.show()
     }
 }
