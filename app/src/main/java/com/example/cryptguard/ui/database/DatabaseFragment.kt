@@ -16,8 +16,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepository
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlin.coroutines.coroutineContext
 
 class DatabaseFragment : Fragment() {
 
@@ -67,9 +67,11 @@ class DatabaseFragment : Fragment() {
                         )
                             .show()
                     }
+                    unsetLoadingScreen()
                 }
+            } else {
+                unsetLoadingScreen()
             }
-            unsetLoadingScreen()
         }
 
         root.findViewById<Button>(R.id.lock_db_button).setOnClickListener {
@@ -82,10 +84,10 @@ class DatabaseFragment : Fragment() {
         }
 
         root.findViewById<Button>(R.id.change_db_password_button).setOnClickListener {
-            setLoadingScreen()
             val newDbPassEditText =
                 root.findViewById<EditText>(R.id.new_database_password_edit_text)
 
+            setLoadingScreen()
             runBlocking {
                 if (passwordRepo?.getDbPassphrase() == null) {
                     Toast.makeText(
@@ -101,9 +103,11 @@ class DatabaseFragment : Fragment() {
                     && passwordRepo != null
                     && passwordRepo?.verifyPassphrase()!!
                 ) {
-
-                    if (passwordRepo!!.encryptDatabase(newDbPassEditText.text.toString())) {
-                        passwordRepo!!.setDbPassphrase(newDbPassEditText.text.toString())
+                    val newPassword = newDbPassEditText.text.toString()
+                    if (passwordRepo!!.encryptDatabase(newPassword)) {
+                        passwordRepo!!.setDbPassphrase(newPassword)
+                        newDbPassEditText.setText("")
+                        currDbPassEditText.setText(newPassword)
                         Toast.makeText(
                             requireContext(),
                             "Password successfully changed.",
@@ -117,8 +121,8 @@ class DatabaseFragment : Fragment() {
                         ).show()
                     }
                 }
-                unsetLoadingScreen()
             }
+            unsetLoadingScreen()
         }
 
 
