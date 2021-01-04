@@ -1,6 +1,8 @@
 package com.example.cryptguard.data
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,13 +10,14 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 
 @Database(entities = [EncryptedPasswordData::class], version = 1)
-abstract class PasswordDataDatabase : RoomDatabase(){
+abstract class PasswordDataDatabase : RoomDatabase() {
 
     abstract fun passwordDataDao(): EncryptedDataDao
 
     companion object {
         @Volatile
         private var INSTANCE: PasswordDataDatabase? = null
+
         @Volatile
         private var REPO_INSTANCE: PasswordDataRepository? = null
 
@@ -32,10 +35,13 @@ abstract class PasswordDataDatabase : RoomDatabase(){
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         @InternalCoroutinesApi
         fun getRepository(context: Context): PasswordDataRepository? {
             return REPO_INSTANCE ?: synchronized(this) {
-                REPO_INSTANCE = PasswordDataRepository(PasswordDataDatabase.getDatabase(context).passwordDataDao())
+                REPO_INSTANCE = PasswordDataRepository(
+                    PasswordDataDatabase.getDatabase(context).passwordDataDao()
+                )
                 REPO_INSTANCE
             }
         }

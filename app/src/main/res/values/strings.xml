@@ -37,4 +37,5 @@
     <string name="new_database_password_text">Enter new database password</string>
     <string name="database_operations_text">Database operations</string>
     <string name="enter_new_database_password_text">Enter new database password</string>
+    <string name="lock_db_button_text">LOCK</string>
 </resources>

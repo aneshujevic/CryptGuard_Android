@@ -40,9 +40,7 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         super.onActivityCreated(savedInstanceState)
 
         if (id != null) {
-            (context as CoroutineScope).launch {
-                viewModel.setChosen(id)
-            }
+            viewModel.setChosen(id)
         }
 
         val siteNameEditText = root.findViewById<EditText>(R.id.edit_text_site_name_pass_detail)
@@ -111,8 +109,10 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
 
             root.button_save_password.setOnClickListener {
                 val pd = createPasswordData(id)
-                if (validateCreateOrSaveChanges(pd)) {
-                    showPasswordListFragment(it)
+                runBlocking {
+                    if (validateCreateOrSaveChanges(pd)) {
+                        showPasswordListFragment(it)
+                    }
                 }
             }
 
@@ -132,8 +132,10 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
         } else {
             root.button_add_password.setOnClickListener {
                 val pd = createPasswordData()
-                if (validateCreateOrSaveChanges(pd)) {
-                    showPasswordListFragment(it)
+                runBlocking {
+                    if (validateCreateOrSaveChanges(pd)) {
+                        showPasswordListFragment(it)
+                    }
                 }
             }
         }
@@ -162,30 +164,26 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
+    private suspend fun validateCreateOrSaveChanges(passwordData: PasswordData): Boolean {
         if (!validatePasswordData(passwordData))
             return false
 
         if (id != null) {
-            runBlocking {
-                viewModel.updatePasswordData(passwordData)
-                Toast.makeText(
-                    requireContext(),
-                    "Password data successfully updated.",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
-            }
+            viewModel.updatePasswordData(id, passwordData)
+            Toast.makeText(
+                requireContext(),
+                "Password data successfully updated.",
+                Toast.LENGTH_LONG
+            )
+                .show()
         } else {
-            runBlocking {
-                viewModel.addPasswordData(passwordData)
-                Toast.makeText(
-                    requireContext(),
-                    "Password data successfully added.",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
-            }
+            viewModel.addPasswordData(passwordData)
+            Toast.makeText(
+                requireContext(),
+                "Password data successfully added.",
+                Toast.LENGTH_LONG
+            )
+                .show()
         }
 
         return true

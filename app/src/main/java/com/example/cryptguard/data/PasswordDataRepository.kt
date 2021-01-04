@@ -8,19 +8,10 @@ import com.example.cryptguard.ui.encrypter.Encrypter
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
     private var passphrase: String? = null
-
-    suspend fun updatePasswordData(passwordData: PasswordData) {
-        val encryptedData =
-            encryptPasswordData(passwordData)?.let { EncryptedPasswordData(encryptedPasswordData = it) }
-        if (encryptedData != null) {
-            encryptedDataDao.updateEncryptedData(encryptedData)
-        }
-    }
 
     fun getDbPassphrase(): String? {
         synchronized(this) {
@@ -34,16 +25,29 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         }
     }
 
-    suspend fun removePasswordData(position: Int) = withContext(Dispatchers.IO) {
-        encryptedDataDao.removeEncryptedDataById(position)
-    }
-
     suspend fun addPasswordData(passwordData: PasswordData) {
         val encryptedData =
             encryptPasswordData(passwordData)?.let { EncryptedPasswordData(encryptedPasswordData = it) }
         if (encryptedData != null) {
             encryptedDataDao.insertEncryptedData(encryptedData)
         }
+    }
+
+    suspend fun updatePasswordData(id: Int, passwordData: PasswordData) {
+        val encryptedData =
+            encryptPasswordData(passwordData)?.let {
+                EncryptedPasswordData(
+                    id = id,
+                    encryptedPasswordData = it
+                )
+            }
+        if (encryptedData != null) {
+            encryptedDataDao.updateEncryptedData(encryptedData)
+        }
+    }
+
+    suspend fun removePasswordData(position: Int) = withContext(Dispatchers.IO) {
+        encryptedDataDao.removeEncryptedDataById(position)
     }
 
     suspend fun getPasswordData(position: Int): PasswordData? = withContext(Dispatchers.IO) {
@@ -69,28 +73,33 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
                 decryptPasswordData(encData.id, encData.encryptedPasswordData)
             }
             true
-        } catch (e: Exception ){
-            e.message?.let { Log.d("decrypt", it) }
+        } catch (e: Exception) {
             false
         }
     }
 
-    private suspend fun encryptPasswordData(passwordData: PasswordData): String? =
+    private suspend fun encryptPasswordData(
+        passwordData: PasswordData,
+        password: String? = passphrase
+    ): String? =
         withContext(Dispatchers.IO) {
             val pdEncoded = Gson().toJson(passwordData)
-            passphrase?.let { Encrypter.encryptStringAndGetBase64(pdEncoded, it) }
+            password?.let { Encrypter.encryptStringAndGetBase64(pdEncoded, it) }
         }
 
     private suspend fun decryptPasswordData(
         id: Int?,
-        base64encodedPasswordData: String
+        base64encodedPasswordData: String,
+        password: String? = null
     ): PasswordData? = withContext(Dispatchers.IO) {
         val base64DataArray = base64encodedPasswordData.split("\n")
         val pdEncrypted = base64DataArray[0].plus(base64DataArray[1])
         val salt = base64DataArray[2]
         val iv = base64DataArray[3]
 
-        val pd = Gson().fromJson(getDbPassphrase()?.let {
+        val passphrase = password ?: getDbPassphrase()
+
+        val pd = Gson().fromJson(passphrase?.let {
             Encrypter.decryptBase64String(
                 pdEncrypted,
                 it, salt, iv
@@ -98,5 +107,29 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         }, PasswordData::class.java)
         pd?.id = id
         pd
+    }
+
+    suspend fun encryptDatabase(newPassword: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val encryptedData = encryptedDataDao.getAllEncryptedData()
+
+            for (element in encryptedData){
+                element.let {
+                    it.encryptedPasswordData = encryptPasswordData(
+                        decryptPasswordData(
+                            it.id,
+                            it.encryptedPasswordData
+                        )!!,
+                        newPassword
+                    )!!
+                    encryptedDataDao.updateEncryptedData(it)
+                }
+            }
+            true
+        } catch (e: Exception) {
+            e.message?.let { Log.d("bad_decrypt", it) }
+            Log.d("error", e.toString())
+            false
+        }
     }
 }
