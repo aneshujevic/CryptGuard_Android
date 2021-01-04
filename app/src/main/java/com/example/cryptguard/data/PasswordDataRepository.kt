@@ -1,28 +1,36 @@
 package com.example.cryptguard.data
 
-import android.content.Context
-import android.content.DialogInterface
 import android.os.Build
-import android.text.InputType
-import android.widget.EditText
-import android.widget.Toast
+import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import com.example.cryptguard.ui.encrypter.Encrypter
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
-    var passphrase: String? = null
+    private var passphrase: String? = null
 
     suspend fun updatePasswordData(passwordData: PasswordData) {
         val encryptedData =
-            encryptPasswordData(passwordData)?.let { EncryptedData(encryptedPasswordData = it) }
+            encryptPasswordData(passwordData)?.let { EncryptedPasswordData(encryptedPasswordData = it) }
         if (encryptedData != null) {
             encryptedDataDao.updateEncryptedData(encryptedData)
+        }
+    }
+
+    fun getDbPassphrase(): String? {
+        synchronized(this) {
+            return passphrase
+        }
+    }
+
+    fun setDbPassphrase(passphrase: String?) {
+        synchronized(this) {
+            this.passphrase = passphrase
         }
     }
 
@@ -32,7 +40,7 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
 
     suspend fun addPasswordData(passwordData: PasswordData) {
         val encryptedData =
-            encryptPasswordData(passwordData)?.let { EncryptedData(encryptedPasswordData = it) }
+            encryptPasswordData(passwordData)?.let { EncryptedPasswordData(encryptedPasswordData = it) }
         if (encryptedData != null) {
             encryptedDataDao.insertEncryptedData(encryptedData)
         }
@@ -50,6 +58,23 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
             })
         }
 
+    suspend fun getFirstEncryptedData(): EncryptedPasswordData? = withContext(Dispatchers.IO) {
+        encryptedDataDao.getFirstEncryptedData()
+    }
+
+    suspend fun verifyPassphrase(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val encData = encryptedDataDao.getFirstEncryptedData()
+            if (encData != null) {
+                decryptPasswordData(encData.id, encData.encryptedPasswordData)
+            }
+            true
+        } catch (e: Exception ){
+            e.message?.let { Log.d("decrypt", it) }
+            false
+        }
+    }
+
     private suspend fun encryptPasswordData(passwordData: PasswordData): String? =
         withContext(Dispatchers.IO) {
             val pdEncoded = Gson().toJson(passwordData)
@@ -65,7 +90,7 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         val salt = base64DataArray[2]
         val iv = base64DataArray[3]
 
-        val pd = Gson().fromJson(passphrase?.let {
+        val pd = Gson().fromJson(getDbPassphrase()?.let {
             Encrypter.decryptBase64String(
                 pdEncrypted,
                 it, salt, iv

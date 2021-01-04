@@ -153,7 +153,6 @@ class EncrypterFragment : Fragment() {
             return false
         }
 
-
         return true
     }
 

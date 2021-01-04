@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 
-@Database(entities = [EncryptedData::class], version = 1)
+@Database(entities = [EncryptedPasswordData::class], version = 1)
 abstract class PasswordDataDatabase : RoomDatabase(){
 
     abstract fun passwordDataDao(): EncryptedDataDao

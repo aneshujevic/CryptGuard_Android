@@ -17,7 +17,6 @@ import com.example.cryptguard.R
 import com.example.cryptguard.data.PasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.ui.password_detail_item.PasswordDetailItemFragment
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_passwords.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -33,7 +32,7 @@ class PasswordsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (PasswordDataDatabase.getRepository(requireContext())?.passphrase == null) {
+        if (PasswordDataDatabase.getRepository(requireContext())?.getDbPassphrase() == null) {
             Toast.makeText(requireContext(), "Please enter the passphrase to unlock your database.", Toast.LENGTH_LONG)
                 .show()
             findNavController().navigate(R.id.mob_nav_database)

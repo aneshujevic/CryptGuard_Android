@@ -5,20 +5,23 @@ import androidx.room.*
 @Dao
 interface EncryptedDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertEncryptedData(encryptedPasswordData: EncryptedData)
+    fun insertEncryptedData(encryptedPasswordPasswordData: EncryptedPasswordData)
 
     @Update
-    fun updateEncryptedData(encryptedPasswordData: EncryptedData)
+    fun updateEncryptedData(encryptedPasswordPasswordData: EncryptedPasswordData)
 
     @Delete
-    fun deleteEncryptedData(encryptedPasswordData: EncryptedData)
+    fun deleteEncryptedData(encryptedPasswordPasswordData: EncryptedPasswordData)
 
-    @Query("SELECT * FROM EncryptedData")
-    fun getAllEncryptedData(): List<EncryptedData>
+    @Query("SELECT * FROM EncryptedPasswordData")
+    fun getAllEncryptedData(): List<EncryptedPasswordData>
 
-    @Query("DELETE FROM EncryptedData WHERE id == :position")
+    @Query("DELETE FROM EncryptedPasswordData WHERE id == :position")
     fun removeEncryptedDataById(position: Int)
 
-    @Query("SELECT * FROM EncryptedData WHERE id == :position")
-    fun getEncryptedDataById(position: Int): EncryptedData
+    @Query("SELECT * FROM EncryptedPasswordData WHERE id == :position")
+    fun getEncryptedDataById(position: Int): EncryptedPasswordData
+
+    @Query("SELECT * FROM EncryptedPasswordData LIMIT 1")
+    fun getFirstEncryptedData(): EncryptedPasswordData?
 }
