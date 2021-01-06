@@ -1,21 +1,28 @@
 package com.example.cryptguard.ui.database
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.view.marginLeft
+import androidx.core.view.marginStart
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.cryptguard.R
 import com.example.cryptguard.data.DatabaseUtils
+import com.example.cryptguard.data.EncryptedPasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepository
 import kotlinx.android.synthetic.main.fragment_database.view.*
@@ -49,6 +56,8 @@ class DatabaseFragment : Fragment() {
         runBlocking {
             if (passwordRepo?.getFirstEncryptedData() == null) {
                 currDbPassEditText.hint = getString(R.string.enter_new_database_password_text)
+                root.lock_db_button.visibility = View.INVISIBLE
+                root.unlock_db_button.text = getString(R.string.create_text)
             }
         }
 
@@ -70,6 +79,9 @@ class DatabaseFragment : Fragment() {
                             Toast.LENGTH_LONG
                         )
                             .show()
+                        findNavController().navigate(R.id.mob_nav_passwords)
+                        root.lock_db_button.visibility = View.VISIBLE
+                        root.unlock_db_button.text = getString(R.string.unlock_text)
                     }
                     unsetLoadingScreen()
                 }
@@ -130,17 +142,43 @@ class DatabaseFragment : Fragment() {
         }
 
         root.import_db_button.setOnClickListener {
-            val intent = Intent()
-                .setType("*/*")
-                .setAction(Intent.ACTION_GET_CONTENT)
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("ALERT")
+            builder.setIcon(R.drawable.ic_baseline_report_24)
+            val textView = TextView(requireContext())
+            textView.text = getString(R.string.import_db_alert_text)
+            textView.setPadding(120, 5, 5, 0)
 
-            startActivityForResult(Intent.createChooser(intent, "Select a file"), 1)
+            builder.setView(textView)
+            builder.setNegativeButton("No") { _, _ -> }
+            builder.setPositiveButton("Yes") { _, _ ->
+                val intent = Intent()
+                    .setType("*/*")
+                    .setAction(Intent.ACTION_GET_CONTENT)
+
+                startActivityForResult(Intent.createChooser(intent, "Select a file"), 1)
+            }
+
+            builder.show()
         }
 
         root.export_db_button.setOnClickListener {
             val dbUtil = DatabaseUtils.getInstance()
             runBlocking {
-                dbUtil.createDatabaseBackup(requireContext(), viewLifecycleOwner)
+                try {
+                    dbUtil.createDatabaseBackup(requireContext())
+                    Toast.makeText(
+                        requireContext(),
+                        "Database exported to Downloads successfully.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "There was trouble exporting database, please try again.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 
@@ -150,16 +188,40 @@ class DatabaseFragment : Fragment() {
     @InternalCoroutinesApi
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             data?.data?.let {
+                runBlocking {
+                    val dbRepo = PasswordDataDatabase.getRepository(requireContext())
+                    dbRepo?.deleteAllEncryptedData()
 
+                    try {
+                        requireContext().contentResolver.openInputStream(it)?.bufferedReader()
+                            .use { buffReader ->
+                                buffReader?.readLines()?.forEach { dbString ->
+                                    val id = dbString.split(",")[0].toInt()
+                                    val encData = dbString.split(",")[1].replace(".", "\n")
+                                    dbRepo?.addEncryptedData(EncryptedPasswordData(id, encData))
+                                }
+                            }
+                        Toast.makeText(
+                            requireContext(),
+                            "Database imported successfully.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } catch (e: Exception) {
+                        Log.d("import error", e.toString())
+                        Toast.makeText(
+                            requireContext(),
+                            "There was problem importing database, please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
             }
         }
     }
-
 
 
     private fun setLoadingScreen() {

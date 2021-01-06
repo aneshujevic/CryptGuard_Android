@@ -5,8 +5,8 @@ import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.InternalCoroutinesApi
+import java.time.LocalDateTime
 
 class DatabaseUtils {
     companion object {
@@ -22,13 +22,13 @@ class DatabaseUtils {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @InternalCoroutinesApi
-    suspend fun createDatabaseBackup(context: Context, viewLifecycleOwner: LifecycleOwner) {
+    suspend fun createDatabaseBackup(context: Context) {
         // creates values of a to be file
         val resolver = context.contentResolver
         val contentValues = ContentValues().apply {
             put(
                 MediaStore.MediaColumns.DISPLAY_NAME,
-                java.util.Calendar.getInstance().toString() + ".cryptguard.db"
+                LocalDateTime.now().toString() + ".cryptguard.db"
             )
         }
 
@@ -38,7 +38,7 @@ class DatabaseUtils {
             val passwordDataRepository = PasswordDataDatabase.getRepository(context)
             resolver.openOutputStream(uri)?.writer().use {
                 passwordDataRepository?.getAllEncryptedData()?.forEach { encryptedData ->
-                    it?.write(encryptedData?.id.toString() + "," + encryptedData?.encryptedPasswordData + "\n")
+                    it?.write(encryptedData?.id.toString() + "," + encryptedData?.encryptedPasswordData?.replace("\n", ".") + "\n")
                 }
             }
         }

@@ -24,4 +24,7 @@ interface EncryptedDataDao {
 
     @Query("SELECT * FROM EncryptedPasswordData LIMIT 1")
     fun getFirstEncryptedData(): EncryptedPasswordData?
+
+    @Query("DELETE FROM EncryptedPasswordData")
+    fun truncateEncryptedData()
 }

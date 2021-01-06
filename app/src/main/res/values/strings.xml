@@ -38,4 +38,7 @@
     <string name="database_operations_text">Database operations</string>
     <string name="enter_new_database_password_text">Enter new database password</string>
     <string name="lock_db_button_text">LOCK</string>
+    <string name="import_db_alert_text">Your current database will be deleted, are you sure you want to import other database?</string>
+    <string name="create_text">CREATE</string>
+    <string name="unlock_text">UNLOCK</string>
 </resources>

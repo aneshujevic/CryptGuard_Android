@@ -93,7 +93,7 @@ class EncrypterFragment : Fragment() {
         } else if (requestCode == 2 && resultCode == RESULT_OK) {
             data?.data?.let {
                 var plainText: String = ""
-                val line = requireContext().contentResolver?.openInputStream(it)?.buffered()
+                requireContext().contentResolver?.openInputStream(it)?.buffered()
                     .use { fileStream ->
                         if (fileStream != null) {
                             try {

@@ -117,7 +117,7 @@ class PasswordDetailItemFragment(private val id: Int?, private val fab: Floating
             }
 
             root.button_delete_password.setOnClickListener {
-                (context as CoroutineScope).launch {
+                runBlocking {
                     viewModel.removeChosenPasswordData(id)
                 }
                 Toast.makeText(

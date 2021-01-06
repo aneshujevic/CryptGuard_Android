@@ -70,6 +70,14 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         encryptedDataDao.getAllEncryptedData()
     }
 
+    suspend fun deleteAllEncryptedData() = withContext(Dispatchers.IO) {
+        encryptedDataDao.truncateEncryptedData()
+    }
+
+    suspend fun addEncryptedData(encryptedData: EncryptedPasswordData) = withContext(Dispatchers.IO) {
+        encryptedDataDao.insertEncryptedData(encryptedData)
+    }
+
     suspend fun verifyPassphrase(): Boolean = withContext(Dispatchers.IO) {
         try {
             val encData = encryptedDataDao.getFirstEncryptedData()
