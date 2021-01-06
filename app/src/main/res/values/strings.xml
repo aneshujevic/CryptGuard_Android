@@ -41,4 +41,6 @@
     <string name="import_db_alert_text">Your current database will be deleted, are you sure you want to import other database?</string>
     <string name="create_text">CREATE</string>
     <string name="unlock_text">UNLOCK</string>
+    <string name="delete_current_database">DELETE CURRENT DATABASE</string>
+    <string name="warning_delete_database_text">THIS PROCESS CANNOT BE UNDONE. Are you sure that you want to delete your database?</string>
 </resources>

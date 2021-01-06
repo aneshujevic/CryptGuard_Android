@@ -5,7 +5,6 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +13,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.view.marginLeft
-import androidx.core.view.marginStart
-import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.cryptguard.R
 import com.example.cryptguard.data.DatabaseUtils
@@ -144,7 +139,7 @@ class DatabaseFragment : Fragment() {
             builder.setIcon(R.drawable.ic_baseline_report_24)
             val textView = TextView(requireContext())
             textView.text = getString(R.string.import_db_alert_text)
-            textView.setPadding(120, 5, 5, 0)
+            textView.setPadding(120, 5, 25, 0)
 
             builder.setView(textView)
             builder.setNegativeButton("No") { _, _ -> }
@@ -154,6 +149,8 @@ class DatabaseFragment : Fragment() {
                     .setAction(Intent.ACTION_GET_CONTENT)
 
                 startActivityForResult(Intent.createChooser(intent, "Select a file"), 1)
+                root.lock_db_button.visibility = View.VISIBLE
+                root.unlock_db_button.text = getString(R.string.unlock_text)
             }
 
             builder.show()
@@ -177,6 +174,27 @@ class DatabaseFragment : Fragment() {
                     ).show()
                 }
             }
+        }
+
+        root.drop_current_db_button.setOnClickListener {
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("WARNING")
+            builder.setIcon(R.drawable.ic_baseline_report_24)
+            val textView = TextView(requireContext())
+            textView.text = getString(R.string.warning_delete_database_text)
+            textView.setPadding(120, 5, 25, 0)
+
+            builder.setView(textView)
+            builder.setNegativeButton("No") { _, _ -> }
+            builder.setPositiveButton("Yes") { _, _ ->
+                runBlocking {
+                    passwordRepo?.deleteAllEncryptedData()
+                    root.lock_db_button.visibility = View.INVISIBLE
+                    root.unlock_db_button.text = getString(R.string.create_text)
+                }
+            }
+
+            builder.show()
         }
 
         return root
