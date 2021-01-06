@@ -4,7 +4,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
-import com.example.cryptguard.ui.encrypter.Encrypter
+import com.example.cryptguard.Encrypter
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -105,9 +105,9 @@ class PasswordDataRepository(private val encryptedDataDao: EncryptedDataDao) {
         password: String? = null
     ): PasswordData? = withContext(Dispatchers.IO) {
         val base64DataArray = base64encodedPasswordData.split("\n")
-        val pdEncrypted = base64DataArray[0].plus(base64DataArray[1])
-        val salt = base64DataArray[2]
-        val iv = base64DataArray[3]
+        val pdEncrypted = base64DataArray[0]
+        val salt = base64DataArray[1]
+        val iv = base64DataArray[2]
 
         val passphrase = password ?: getDbPassphrase()
 

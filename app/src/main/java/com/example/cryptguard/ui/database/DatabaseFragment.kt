@@ -31,8 +31,6 @@ import kotlinx.android.synthetic.main.fragment_encrypter.view.*
 import kotlinx.coroutines.*
 
 class DatabaseFragment : Fragment() {
-
-    private lateinit var databaseViewModel: DatabaseViewModel
     private lateinit var loadingView: View
     private lateinit var loadingProgressBar: ProgressBar
     private var passwordRepo: PasswordDataRepository? = null
@@ -44,7 +42,6 @@ class DatabaseFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        databaseViewModel = ViewModelProvider(this).get(DatabaseViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_database, container, false)
         loadingView = root.findViewById(R.id.encrypting_database_view)
         loadingProgressBar = root.findViewById(R.id.encryption_progress_bar)
@@ -211,7 +208,6 @@ class DatabaseFragment : Fragment() {
                             Toast.LENGTH_LONG
                         ).show()
                     } catch (e: Exception) {
-                        Log.d("import error", e.toString())
                         Toast.makeText(
                             requireContext(),
                             "There was problem importing database, please try again.",

@@ -1,6 +1,8 @@
-package com.example.cryptguard.ui.encrypter
+package com.example.cryptguard
 
 import android.os.Build
+import android.util.Base64
+import android.util.Log
 import androidx.annotation.RequiresApi
 import java.io.InputStream
 import java.security.SecureRandom
@@ -104,11 +106,11 @@ object Encrypter {
     }
 
     private fun ByteArray.toBase64(): String {
-        return android.util.Base64.encodeToString(this, android.util.Base64.DEFAULT).toString()
+        return String(Base64.encode(this, Base64.NO_WRAP))
     }
 
     private fun String.fromBase64(): ByteArray? {
-        return android.util.Base64.decode(this, android.util.Base64.DEFAULT)
+        return android.util.Base64.decode(this, Base64.NO_WRAP)
     }
 
     private fun appendCipherDataToBase64(
@@ -116,9 +118,9 @@ object Encrypter {
         passwordSalt: ByteArray,
         initVector: ByteArray
     ): String {
-        val cipherTextBase64 = cipherText.toBase64()
-        val passwordSaltBase64 = passwordSalt.toBase64()
-        val initVectorBase64 = initVector.toBase64()
+        val cipherTextBase64 = cipherText.toBase64().plus("\n")
+        val passwordSaltBase64 = passwordSalt.toBase64().plus("\n")
+        val initVectorBase64 = initVector.toBase64().plus("\n")
 
         return cipherTextBase64.plus(passwordSaltBase64 + initVectorBase64)
     }
