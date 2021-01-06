@@ -30,7 +30,7 @@ class DatabaseFragment : Fragment() {
     private lateinit var loadingProgressBar: ProgressBar
     private var passwordRepo: PasswordDataRepository? = null
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.Q)
     @InternalCoroutinesApi
     override fun onCreateView(
         inflater: LayoutInflater,
