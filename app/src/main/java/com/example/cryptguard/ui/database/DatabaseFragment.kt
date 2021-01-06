@@ -1,5 +1,7 @@
 package com.example.cryptguard.ui.database
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,14 +12,16 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptguard.R
+import com.example.cryptguard.data.DatabaseUtils
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepository
+import kotlinx.android.synthetic.main.fragment_database.view.*
+import kotlinx.android.synthetic.main.fragment_encrypter.*
+import kotlinx.android.synthetic.main.fragment_encrypter.view.*
 import kotlinx.coroutines.*
-import kotlin.coroutines.coroutineContext
 
 class DatabaseFragment : Fragment() {
 
@@ -48,7 +52,7 @@ class DatabaseFragment : Fragment() {
             }
         }
 
-        root.findViewById<Button>(R.id.unlock_db_button).setOnClickListener {
+        root.unlock_db_button.setOnClickListener {
             setLoadingScreen()
             if (passwordEditTextValidate(currDbPassEditText)) {
                 passwordRepo?.setDbPassphrase(currDbPassEditText.text.toString())
@@ -74,7 +78,7 @@ class DatabaseFragment : Fragment() {
             }
         }
 
-        root.findViewById<Button>(R.id.lock_db_button).setOnClickListener {
+        root.lock_db_button.setOnClickListener {
             setLoadingScreen()
             passwordRepo?.setDbPassphrase(null)
             currDbPassEditText.setText("")
@@ -83,7 +87,7 @@ class DatabaseFragment : Fragment() {
             unsetLoadingScreen()
         }
 
-        root.findViewById<Button>(R.id.change_db_password_button).setOnClickListener {
+        root.change_db_password_button.setOnClickListener {
             val newDbPassEditText =
                 root.findViewById<EditText>(R.id.new_database_password_edit_text)
 
@@ -125,14 +129,38 @@ class DatabaseFragment : Fragment() {
             unsetLoadingScreen()
         }
 
+        root.import_db_button.setOnClickListener {
+            val intent = Intent()
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT)
 
-        /*
-        databaseViewModel.text.observe(viewLifecycleOwner, {
-            textView.text = it
-        })
-        */
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), 1)
+        }
+
+        root.export_db_button.setOnClickListener {
+            val dbUtil = DatabaseUtils.getInstance()
+            runBlocking {
+                dbUtil.createDatabaseBackup(requireContext(), viewLifecycleOwner)
+            }
+        }
+
         return root
     }
+
+    @InternalCoroutinesApi
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            data?.data?.let {
+
+            }
+        }
+    }
+
+
 
     private fun setLoadingScreen() {
         loadingProgressBar.visibility = View.VISIBLE
