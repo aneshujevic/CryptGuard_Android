@@ -38,7 +38,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.mob_nav_database,
                 R.id.mob_nav_passwords,
                 R.id.mob_nav_encrypter,
-                R.id.mob_nav_generator
+                R.id.mob_nav_generator,
+                R.id.mob_online_account
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

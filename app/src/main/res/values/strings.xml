@@ -43,4 +43,9 @@
     <string name="unlock_text">UNLOCK</string>
     <string name="delete_current_database">DELETE CURRENT DATABASE</string>
     <string name="warning_delete_database_text">THIS PROCESS CANNOT BE UNDONE. Are you sure that you want to delete your database?</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="online_account">Online account</string>
+    <string name="username">Username</string>
+    <string name="request_login_password">Request login password</string>
 </resources>

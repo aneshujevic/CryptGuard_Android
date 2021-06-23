@@ -20,5 +20,10 @@
             android:id="@+id/mob_nav_generator"
             android:icon="@drawable/ic_dice"
             android:title="@string/menu_generator" />
+
+        <item
+            android:id="@+id/mob_online_account"
+            android:icon="@drawable/ic_baseline_cloud_circle_24"
+            android:title="@string/online_account" />
     </group>
 </menu>

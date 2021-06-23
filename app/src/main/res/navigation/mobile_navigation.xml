@@ -30,4 +30,10 @@
         android:label="@string/menu_generator"
         tools:layout="@layout/fragment_generator" />
 
+    <fragment
+        android:id="@+id/mob_online_account"
+        android:name="com.example.cryptguard.OnlineAccount"
+        android:label="Online account"
+        tools:layout="@layout/fragment_online_account" />
+
 </navigation>
