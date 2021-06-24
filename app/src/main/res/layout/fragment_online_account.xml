@@ -40,7 +40,7 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <Button
-        android:id="@+id/LogInButton"
+        android:id="@+id/logInButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -49,10 +49,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/PasswordEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/passwordRegistrationEditText" />
 
     <EditText
-        android:id="@+id/PasswordEditText"
+        android:id="@+id/passwordRegistrationEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -63,10 +63,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RequestLoginPassButton" />
+        app:layout_constraintTop_toBottomOf="@+id/requestLoginPassButton" />
 
     <Button
-        android:id="@+id/RequestLoginPassButton"
+        android:id="@+id/requestLoginPassButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/charleston_green_bright"
@@ -74,10 +74,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/UsernameEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/usernameLoginEditText" />
 
     <EditText
-        android:id="@+id/UsernameEditText"
+        android:id="@+id/usernameLoginEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10sp"
@@ -88,7 +88,7 @@
         tools:layout_editor_absoluteX="11dp" />
 
     <Button
-        android:id="@+id/UploadDBButton"
+        android:id="@+id/uploadDBButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/charleston_green_bright"
@@ -96,12 +96,12 @@
         app:layout_constraintBottom_toTopOf="@+id/divider3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toEndOf="@+id/DownloadDBButton"
-        app:layout_constraintTop_toBottomOf="@+id/LogInButton"
+        app:layout_constraintStart_toEndOf="@+id/downloadDBButton"
+        app:layout_constraintTop_toBottomOf="@+id/logInButton"
         app:layout_constraintVertical_bias="0.448" />
 
     <Button
-        android:id="@+id/DownloadDBButton"
+        android:id="@+id/downloadDBButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/charleston_green_bright"
@@ -120,26 +120,26 @@
         android:ems="10"
         android:hint="Username"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/RegisterEmailEditText"
+        app:layout_constraintBottom_toTopOf="@+id/emailRegisterEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider3" />
 
     <EditText
-        android:id="@+id/RegisterEmailEditText"
+        android:id="@+id/emailRegisterEditText"
         android:layout_width="310dp"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
         android:ems="10"
         android:textAlignment="center"
         android:hint="Email"
-        app:layout_constraintBottom_toTopOf="@+id/RegisterButton"
+        app:layout_constraintBottom_toTopOf="@+id/registerButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/RegisterButton"
+        android:id="@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/charleston_green_bright"
@@ -147,7 +147,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/UploadDBButton"
+        app:layout_constraintTop_toBottomOf="@+id/uploadDBButton"
         app:layout_constraintVertical_bias="0.985" />
 
     <View
@@ -156,7 +156,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="76dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/LogInButton"
+        app:layout_constraintTop_toBottomOf="@+id/logInButton"
         tools:layout_editor_absoluteX="10dp" />
 
     <View
@@ -164,7 +164,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/LogInButton"
+        app:layout_constraintTop_toBottomOf="@+id/logInButton"
         tools:layout_editor_absoluteX="1dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
