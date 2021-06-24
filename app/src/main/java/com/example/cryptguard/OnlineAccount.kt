@@ -11,6 +11,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.room.Database
+import com.example.cryptguard.data.DatabaseUtils
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
@@ -18,13 +20,14 @@ import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import retrofit2.Retrofit
 
 
 class OnlineAccount : Fragment() {
     private val serverURL: String = "http://192.168.1.9:8080"
     private var tokenJWT: String = ""
+    private lateinit var retrofit: Retrofit
+    private lateinit var service: APIService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +39,14 @@ class OnlineAccount : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        // Create Retrofit
+        retrofit = Retrofit.Builder()
+            .baseUrl(serverURL)
+            .build()
+
+        // Create Service
+        service = retrofit.create(APIService::class.java)
+
         val v = inflater.inflate(R.layout.fragment_online_account, container, false)
 
         val reqPassBtn = v.findViewById<Button>(R.id.requestLoginPassButton)
@@ -46,7 +56,7 @@ class OnlineAccount : Fragment() {
             val fields: HashMap<String?, RequestBody?> = HashMap()
             fields["username"] = username.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            sendFormData(fields, ApiType.REQUEST_LOGIN)
+            formDataPostServer(fields, ApiType.REQUEST_LOGIN)
         }
 
         val loginBtn = v.findViewById<Button>(R.id.logInButton)
@@ -58,7 +68,7 @@ class OnlineAccount : Fragment() {
             fields["username"] = username.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             fields["password"] = password.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            sendFormData(fields, ApiType.LOGIN)
+            formDataPostServer(fields, ApiType.LOGIN)
         }
 
         val uploadDbBtn = v.findViewById<Button>(R.id.uploadDBButton)
@@ -79,24 +89,13 @@ class OnlineAccount : Fragment() {
                 fields["file\"; filename=\"database.db.cryptguard"] =
                     databaseOctet.toRequestBody("application/octet-stream".toMediaTypeOrNull())
 
-                sendFormData(fields, ApiType.UPLOAD_DB)
+                formDataPostServer(fields, ApiType.UPLOAD_DB)
             }
         }
 
         val downloadDbBtn = v.findViewById<Button>(R.id.downloadDBButton)
         downloadDbBtn.setOnClickListener {
-            // Create JSON using JSONObject
-            val jsonObject = JSONObject()
-            jsonObject.put("name", "Jack")
-            jsonObject.put("salary", "3540")
-            jsonObject.put("age", "23")
-
-            // Convert JSONObject to String
-            val jsonObjectString = jsonObject.toString()
-
-            // Create RequestBody ( We're not using any converter, like GsonConverter, MoshiConverter e.t.c, that's why we use RequestBody )
-            val requestBody = jsonObjectString.toRequestBody("application/json".toMediaTypeOrNull())
-//            sendFormData(requestBody, ApiType.DOWNLOAD_DB)
+            getDatabaseServer()
         }
 
         val registerBtn = v.findViewById<Button>(R.id.registerButton)
@@ -108,29 +107,19 @@ class OnlineAccount : Fragment() {
             fields["username"] = username.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             fields["email"] = email.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-            sendFormData(fields, ApiType.REGISTER)
+            formDataPostServer(fields, ApiType.REGISTER)
         }
 
         return v
     }
 
-    private fun sendFormData(fields: HashMap<String?, RequestBody?>, type: ApiType) {
+    private fun formDataPostServer(fields: HashMap<String?, RequestBody?>, type: ApiType) {
         CoroutineScope(Dispatchers.IO).launch {
-            // Create Retrofit
-            val retrofit = Retrofit.Builder()
-                .baseUrl(serverURL)
-                .build()
-
-            // Create Service
-            val service = retrofit.create(APIService::class.java)
-
-
             val response = when (type) {
                 ApiType.REGISTER -> service.register(fields)
                 ApiType.LOGIN -> service.login(fields)
                 ApiType.REQUEST_LOGIN -> service.requestLogin(fields)
-                ApiType.DOWNLOAD_DB -> service.downloadDB(tokenJWT)
-                ApiType.UPLOAD_DB -> service.uploadDB(tokenJWT, fields)
+                else -> service.uploadDB(tokenJWT, fields)
             }
 
             withContext(Dispatchers.Main) {
@@ -165,10 +154,10 @@ class OnlineAccount : Fragment() {
                 } else {
 
                     Log.e("RETROFIT_ERROR", response.code().toString())
-                    Log.e("Retrofit_ERROR_BODY", response.body().toString())
+                    Log.e("Retrofit_ERROR_BODY", response.errorBody().toString())
                     var message: String? = null
                     try {
-                        message = response.body().toString().split(":")[1]
+                        message = response.errorBody().toString().split(":")[1]
                     } catch (e: Exception) {
                     }
 
@@ -179,6 +168,35 @@ class OnlineAccount : Fragment() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+                }
+            }
+        }
+    }
+
+    @InternalCoroutinesApi
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getDatabaseServer() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = service.downloadDB(tokenJWT)
+            // TODO: fix unlock-create bug after downloading database :)
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+
+                    DatabaseUtils.importDatabaseFromHTTPResponse(response, requireContext())
+
+                    Toast.makeText(
+                        requireContext(),
+                        "Successfully downloaded database!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+
+                    Log.e("RETROFIT_ERROR", response.code().toString())
+                    Toast.makeText(
+                        requireContext(),
+                        "Error while downloading database!",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }

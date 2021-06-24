@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.cryptguard.R
 import com.example.cryptguard.data.DatabaseUtils
-import com.example.cryptguard.data.EncryptedPasswordData
 import com.example.cryptguard.data.PasswordDataDatabase
 import com.example.cryptguard.data.PasswordDataRepository
 import kotlinx.android.synthetic.main.fragment_database.view.*
@@ -157,10 +156,10 @@ class DatabaseFragment : Fragment() {
         }
 
         root.export_db_button.setOnClickListener {
-            val dbUtil = DatabaseUtils.getInstance()
+            DatabaseUtils.getInstance()
             runBlocking {
                 try {
-                    dbUtil.createDatabaseBackup(requireContext())
+                    DatabaseUtils.createDatabaseBackup(requireContext())
                     Toast.makeText(
                         requireContext(),
                         "Database exported to Downloads successfully.",
@@ -207,32 +206,7 @@ class DatabaseFragment : Fragment() {
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             data?.data?.let {
-                runBlocking {
-                    val dbRepo = PasswordDataDatabase.getRepository(requireContext())
-                    dbRepo?.deleteAllEncryptedData()
-
-                    try {
-                        requireContext().contentResolver.openInputStream(it)?.bufferedReader()
-                            .use { buffReader ->
-                                buffReader?.readLines()?.forEach { dbString ->
-                                    val id = dbString.split(",")[0].toInt()
-                                    val encData = dbString.split(",")[1].replace(".", "\n")
-                                    dbRepo?.addEncryptedData(EncryptedPasswordData(id, encData))
-                                }
-                            }
-                        Toast.makeText(
-                            requireContext(),
-                            "Database imported successfully.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            requireContext(),
-                            "There was problem importing database, please try again.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
+                DatabaseUtils.importDatabaseFromFile(it, requireContext())
             }
         }
     }
